@@ -8,7 +8,7 @@ from .validate import redir_invalid, validate_zip, validate_fb2
 
 dl = Blueprint("dl", __name__)
 
-redir_all = "html.html_root"
+redir_all = "st.html_root"
 
 
 def shutdown_server():
