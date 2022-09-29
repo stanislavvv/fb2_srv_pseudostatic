@@ -109,6 +109,54 @@ def get_authors(author):
     return ret
 
 
+# return [{"name": "Name", "id": "id"}, ...]
+def get_author_struct(author):
+    ret = [{"name": '--- unknown ---', "id": make_id('--- unknown ---')}]  # default
+    g = []
+    if isinstance(author, list):
+        for i in author:
+            a_tmp = []
+            if i is not None:
+                if 'last-name' in i and i['last-name'] is not None:
+                    a_tmp.append(strlist(i['last-name']))
+                if 'first-name' in i and i['first-name'] is not None:
+                    a_tmp.append(strlist(i['first-name']))
+                if 'middle-name' in i and i['middle-name'] is not None:
+                    a_tmp.append(strlist(i['middle-name']))
+                if 'nickname' in i and i['nickname'] is not None:
+                    if len(a_tmp) > 0:
+                        a_tmp.append('(' + strlist(i['nickname']) + ')')
+                    else:
+                        a_tmp.append(strlist(i['nickname']))
+                a_tmp2 = " ".join(a_tmp)
+                a_tmp2 = strip_quotes(a_tmp2).strip('|')
+                a_tmp2 = a_tmp2.strip()
+                if len(a_tmp2) > 0:
+                    g.append({"name": a_tmp2, "id": make_id(a_tmp2.ljust(4))})
+        if len(g) > 0:
+            ret = g
+    else:
+        a_tmp = []
+        if author is not None:
+            if 'last-name' in author and author['last-name'] is not None:
+                a_tmp.append(strlist(author['last-name']))
+            if 'first-name' in author and author['first-name'] is not None:
+                a_tmp.append(strlist(author['first-name']))
+            if 'middle-name' in author and author['middle-name'] is not None:
+                a_tmp.append(strlist(author['middle-name']))
+            if 'nickname' in author and author['nickname'] is not None:
+                if len(a_tmp) > 0:
+                    a_tmp.append('(' + strlist(author['nickname']) + ')')
+                else:
+                    a_tmp.append(strlist(author['nickname']))
+        r = " ".join(a_tmp)
+        r = strip_quotes(r).strip('|')
+        r = r.strip()
+        if len(r) > 0:
+            ret = {"name": r, "id": make_id(r.ljust(4))}
+    return ret
+
+
 # return pipe-separated string of authors from input struct
 def get_author_ids(author):
     ret = make_id("--- unknown ---".encode('utf-8'))  # default

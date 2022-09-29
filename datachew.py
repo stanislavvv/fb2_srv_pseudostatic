@@ -11,6 +11,7 @@ import logging
 from app import create_app
 from data_chew import INPX
 from data_chew import create_booklist, update_booklist
+from data_chew import make_root, process_lists
 
 DEBUG = True  # default, configure in app/config.py
 DBLOGLEVEL = logging.DEBUG
@@ -27,7 +28,7 @@ def usage():
 
 
 def clean():
-    print("cleanup static data")
+    print("NOT cleanup static data -- UNIMPLEMENTED")
 
 
 def renew_lists():
@@ -50,6 +51,13 @@ def new_lists():
         update_booklist(inpx_data, zip_file)
 
 
+def fromlists():
+    zipdir = app.config['ZIPS']
+    pagesdir = app.config['STATIC']
+    make_root(pagesdir)
+    process_lists(zipdir, pagesdir)
+
+
 if __name__ == "__main__":
     app = create_app()
     DEBUG = app.config['DEBUG']
@@ -65,8 +73,8 @@ if __name__ == "__main__":
             renew_lists()
         elif sys.argv[1] == "new_lists":
             new_lists()
-        # elif sys.argv[1] == "fromlists":
-            # fromlists()
+        elif sys.argv[1] == "fromlists":
+            fromlists()
         else:
             usage()
     else:

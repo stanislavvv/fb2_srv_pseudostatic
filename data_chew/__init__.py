@@ -6,11 +6,16 @@ import xmltodict
 # import sqlite3
 import json
 import logging
+import glob
 
 from bs4 import BeautifulSoup
 from datetime import datetime
-# from .strings import get_genres, get_genres_meta, get_genres_replace, genres_replace, check_genres, rchop
-from .data import get_genre, get_authors, get_author_ids
+from pathlib import Path
+
+from .strings import get_genres, get_genres_meta, get_genres_replace
+from .strings import genres_replace, check_genres, rchop, id2path
+
+from .data import get_genre, get_authors, get_author_ids, get_author_struct
 from .data import get_sequence, get_sequence_names, get_sequence_ids, get_lang
 from .data import get_struct_by_key, make_id, get_replace_list, replace_book
 from .data import get_title
@@ -18,6 +23,108 @@ from .inpx import get_inpx_meta
 
 READ_SIZE = 20480  # description in 20kb...
 INPX = "flibusta_fb2_local.inpx"  # filename of metadata indexes zip
+
+# start data
+ROOT = """
+{
+  "feed": {
+    "@xmlns": "http://www.w3.org/2005/Atom",
+    "@xmlns:dc": "http://purl.org/dc/terms/",
+    "@xmlns:os": "http://a9.com/-/spec/opensearch/1.1/",
+    "@xmlns:opds": "http://opds-spec.org/2010/catalog",
+    "id": "tag:root",
+    "title": "Home opds directory",
+    "updated": "2022-09-29T18:46:35+05:00",
+    "icon": "/favicon.ico",
+    "link": [
+      {
+        "@href": "/opds/search?searchTerm={searchTerms}",
+        "@rel": "search",
+        "@type": "application/atom+xml"
+      },
+      {
+        "@href": "/opds/",
+        "@rel": "start",
+        "@type": "application/atom+xml;profile=opds-catalog"
+      },
+      {
+        "@href": "/opds/",
+        "@rel": "self",
+        "@type": "application/atom+xml;profile=opds-catalog"
+      }
+    ],
+    "entry": [
+      {
+        "updated": "2022-09-29T18:46:35+05:00",
+        "id": "tag:root:authors",
+        "title": "По авторам",
+        "content": {
+          "@type": "text",
+          "#text": "По авторам"
+        },
+        "link": {
+          "@href": "/opds/authorsindex/",
+          "@type": "application/atom+xml;profile=opds-catalog"
+        }
+      },
+      {
+        "updated": "2022-09-29T18:46:35+05:00",
+        "id": "tag:root:sequences",
+        "title": "По сериям",
+        "content": {
+          "@type": "text",
+          "#text": "По сериям"
+        },
+        "link": {
+          "@href": "/opds/sequencesindex/",
+          "@type": "application/atom+xml;profile=opds-catalog"
+        }
+      },
+      {
+        "updated": "2022-09-29T18:46:35+05:00",
+        "id": "tag:root:genre",
+        "title": "По жанрам",
+        "content": {
+          "@type": "text",
+          "#text": "По жанрам"
+        },
+        "link": {
+          "@href": "/opds/genres/",
+          "@type": "application/atom+xml;profile=opds-catalog"
+        }
+      },
+      {
+        "updated": "2022-09-29T18:46:35+05:00",
+        "id": "tag:root:random:books",
+        "title": "Случайные книги",
+        "content": {
+          "@type": "text",
+          "#text": "Случайные книги"
+        },
+        "link": {
+          "@href": "/opds/random-books/",
+          "@type": "application/atom+xml;profile=opds-catalog"
+        }
+      },
+      {
+        "updated": "2022-09-29T18:46:35+05:00",
+        "id": "tag:root:random:sequences",
+        "title": "Случайные серии",
+        "content": {
+          "@type": "text",
+          "#text": "Случайные серии"
+        },
+        "link": {
+          "@href": "/opds/random-sequences/",
+          "@type": "application/atom+xml;profile=opds-catalog"
+        }
+      }
+    ]
+  }
+}
+"""
+
+book_idx = {}
 
 
 def create_booklist(inpx_data, zip_file):
@@ -85,12 +192,9 @@ def fb2parse(z, filename, replace_data, inpx_data):
         genre = get_genre(info['genre'])
     else:
         genre = ""
-    author = '--- unknown ---'
-    author_ids = make_id(author)
+    author = [{"name": '--- unknown ---', "id": make_id('--- unknown ---')}]
     if 'author' in info and info['author'] is not None:
-        author = get_authors(info['author'])
-    if 'author' in info and info['author'] is not None:
-        author_ids = get_author_ids(info['author'])
+        author = get_author_struct(info['author'])
     sequence = None
     if 'sequence' in info and info['sequence'] is not None:
         sequence = get_sequence(info['sequence'])
@@ -116,10 +220,7 @@ def fb2parse(z, filename, replace_data, inpx_data):
         "filename": filename,
         "genres": genre,
         "authors": author,
-        "author_ids": author_ids,
         "sequences": sequence,
-        "seq_names": seq_names,
-        "seq_ids": seq_ids,
         "book_title": str(book_title),
         "book_id": book_id,
         "lang": str(lang),
@@ -144,3 +245,116 @@ def ziplist(inpx_data, zip_file):
             if res is not None:
                 ret.append(res)
     return ret
+
+
+def make_root(pagesdir):
+    logging.info("Making root...")
+    Path(pagesdir).mkdir(parents=False, exist_ok=True)
+    with open(pagesdir + "/index.json", "w") as idx:
+        idx.write(ROOT)
+
+
+
+
+def process_list(booklist):
+    with open(booklist) as lst:
+        data = json.load(lst)
+    for book in data:
+        book_id = book["book_id"]
+        book_idx[book_id] = book
+
+
+def make_sequences(pagesdir):
+    seq_base = "/sequencesindex/"  # for sequence indexes
+    seq_data_base = "/sequence/"  # for sequence data
+    seq_names = {}
+    seq_idx = {}
+    seq_root = {}
+    seq_subroot = {}
+    seq_data = {}
+    for book in book_idx:
+        bdata = book_idx[book]
+        if bdata["sequences"] is not None:
+            for seq in bdata["sequences"]:
+                seq_id = seq["id"]
+                seq_name = seq["name"]
+                seq_names[seq_id] = seq_name
+                if seq_id in seq_idx:
+                    s = seq_idx[seq_id]
+                    count = s["cnt"]
+                    count = count + 1
+                    s["cnt"] = count
+                    seq_idx[seq_id] = s
+                else:
+                    s = {"name": seq_name, "id": seq_id, "cnt": 1}
+                    seq_idx[seq_id] = s
+                if seq_id in seq_data:
+                    s = seq_data[seq_id]
+                    s.append(bdata)
+                    seq_data[seq_id] = s
+                else:
+                    s = []
+                    s.append(bdata)
+                    seq_data[seq_id] = s
+    for seq in seq_names:
+        name = seq_names[seq]
+        first = name[:1]
+        three = name[:3]
+        seq_root[first] = 1
+        if first in seq_subroot:
+            s = seq_subroot[first]
+            if three in s:
+                s[three].append(seq)
+            else:
+                s[three] = []
+                s[three].append(seq)
+            seq_subroot[first] = s
+        else:
+            s = {}
+            s[three] = []
+            s[three].append(seq)
+            seq_subroot[first] = s
+        workpath = pagesdir + seq_data_base + id2path(seq)
+        Path(workpath).mkdir(parents=True, exist_ok=True)
+        data = seq_data[seq]
+        with open(workpath + "/index.json", 'w') as idx:
+            json.dump(data, idx, indent=2, ensure_ascii=False)
+        with open(workpath + "/name.json", 'w') as idx:
+            json.dump(name, idx, indent=2, ensure_ascii=False)
+    for first in sorted(seq_root.keys()):
+        workpath = pagesdir + seq_base + first
+        Path(workpath).mkdir(parents=True, exist_ok=True)
+        data = []
+        for d in seq_subroot[first]:
+            data.append(d)
+        with open(workpath + "/index.json", 'w') as idx:
+            json.dump(data, idx, indent=2, ensure_ascii=False)
+        for three in seq_subroot[first]:
+            s = seq_subroot[first]
+            wpath = pagesdir + seq_base + three
+            Path(wpath).mkdir(parents=True, exist_ok=True)
+            out = []
+            for seq_id in s[three]:
+                seq = seq_idx[seq_id]
+                out.append(seq)
+            with open(wpath + "/index.json", 'w') as idx:
+                json.dump(out, idx, indent=2, ensure_ascii=False)
+    workpath = pagesdir + seq_base
+    data = []
+    for s in seq_root:
+        data.append(s)
+    with open(workpath + "/index.json", 'w') as idx:
+        json.dump(data, idx, indent=2, ensure_ascii=False)
+
+def process_lists(zipdir, pagesdir):
+    logging.info("Prerocessing lists...")
+    get_genres_meta()
+    get_genres()  # official genres from genres.list
+    get_genres_replace()  # replacement for unofficial genres from genres_replace.list
+
+    i = 0
+    for booklist in glob.glob(zipdir + '/*.zip.list'):
+        logging.info("[" + str(i) + "] ")
+        process_list(booklist)
+        i = i + 1
+    make_sequences(pagesdir)
