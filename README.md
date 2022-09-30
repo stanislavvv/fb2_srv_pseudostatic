@@ -17,12 +17,14 @@ NIH-проект
 - `/(authorindex|sequenceindex|genres)/index.json` - страницы соответствующих разделов
 - `/(authorindex|sequenceindex)/(.|...)/index.json`, `/genres/.+/index.json` и `/genres/.+/[0-9]+.json` - страницы соответствующих подразделов
 - `/sequence/<SeqCut>/<SeqCut2>/<SequenceID>/index.json` - страница книжной серии
+- `.../name.json` - содержит единственную строку с названием/именем
 
 Страницы автора:
 - `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/index.json` - все книги автора
 - `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/sequences.json` - серии
 - `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/sequenceless.json` - вне серий
 - `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/<SequenceID>.json` - книги автора в серии
+- `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/<SequenceID>.name.json` - название серии
 
 AuthorCut и SeqCut - первые 2 символа от соответствующих ID,
 AuthorCut2 и SeqCut2 - вторые 2 символа. Используется для уменьшения числа файлов в каталоге.

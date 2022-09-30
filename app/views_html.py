@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from flask import Blueprint, Response, render_template
-from .opds import main_opds, opds_str, opds_seq_cnt, opds_books
+from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main_author
+from .opds import author_seqs, get_main_name
 from .validate import validate_prefix, validate_id
+from .internals import id2path
 
 # import json
 
@@ -34,7 +36,7 @@ def html_seq_root():
     title = "Серии книг"
     subtag = "tag:sequences:"
     subtitle = "Книги на "
-    data = opds_str(idx, tag, title, baseref, self, upref, subtag, subtitle)
+    data = str_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']
@@ -56,7 +58,7 @@ def html_seq_sub(sub):
         title = "Серии книг"
         subtag = "tag:sequences:"
         subtitle = "Книги на "
-        data = opds_seq_cnt(idx, tag, title, baseref, self, upref, subtag, subtitle)
+        data = seq_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
     elif len(sub) == 1:
         idx = "sequencesindex/" + sub
         self = "/html/sequencesindex/" + sub
@@ -66,7 +68,7 @@ def html_seq_sub(sub):
         title = "Серии на '" + sub + "'"
         subtag = "tag:sequence:"
         subtitle = "Серия "
-        data = opds_str(idx, tag, title, baseref, self, upref, subtag, subtitle)
+        data = str_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']
@@ -88,7 +90,196 @@ def html_seq(sub1, sub2, id):
     title = "Серия "
     authref = "/html/author/"
     seqref = "/html/sequence/"
-    data = opds_books(idx, tag, title, self, upref, authref, seqref, id)
+    data = books_list(idx, tag, title, self, upref, authref, seqref, id)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/authorsindex", methods=['GET'])
+@html.route("/html/authorsindex/", methods=['GET'])
+def html_auth_root():
+    idx = "authorsindex"
+    self = "/html/authorsindex/"
+    baseref = self
+    upref = "/html/"
+    tag = "tag:root:authors"
+    title = "Авторы"
+    subtag = "tag:authors:"
+    subtitle = "Авторы на "
+    data = str_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_root.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/authorsindex/<sub>", methods=['GET'])
+def html_auth_sub(sub):
+    sub = validate_prefix(sub)
+    data = []
+    if len(sub) == 3:
+        idx = "authorsindex/" + sub
+        self = "/html/authorsindex/" + sub
+        baseref = "/html/author/"
+        upref = "/html/authorsindex/"
+        tag = "tag:authors:" + sub
+        title = "Авторы на '" + sub + "'"
+        subtag = "tag:authors:"
+        subtitle = "Авторы на "
+        data = auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+    elif len(sub) == 1:
+        idx = "authorsindex/" + sub
+        self = "/html/authorsindex/" + sub
+        upref = "/html/authorsindex/"
+        baseref = "/html/authorsindex/"
+        tag = "tag:authors:" + sub
+        title = "Авторы на '" + sub + "'"
+        subtag = "tag:author:"
+        subtitle = ""
+        data = str_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_root.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/author/<sub1>/<sub2>/<id>", methods=['GET'])
+def html_author(sub1, sub2, id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
+    self = "/html/" + idx
+    baseref = ""
+    upref = "/html/authorsindex/"
+    tag = "tag:root:author:" + id
+    title = "Автор "
+    authref = "/html/author/"
+    seqref = "/html/sequence/"
+    data = main_author(idx, tag, title, self, upref, authref, seqref, id)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_author_main.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/author/<sub1>/<sub2>/<id>/sequences", methods=['GET'])
+def html_author_seqs(sub1, sub2, id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
+    self = "/html/" + idx
+    baseref = self + "/"
+    upref = "/html/authorsindex/"
+    tag = "tag:root:author:" + id
+    title = "Серии автора "
+    authref = "/html/author/"
+    seqref = "/html/sequence/"
+    subtag = "tag:author:" + id + ":sequence:"
+    data = author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, id)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_author_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/author/<sub1>/<sub2>/<id>/<seq_id>", methods=['GET'])
+def html_author_seq(sub1, sub2, id, seq_id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    seq_id = validate_id(seq_id)
+    idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, seq_id)
+    self = "/html/" + idx
+    upref = "/html/author/%s/%s/%s" % (sub1, sub2, id)
+    tag = "tag:root:author:" + id + ":sequence:" + seq_id
+    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
+    title = "Автор '" + get_main_name(idx2) + "', серия "
+    authref = "/html/author/"
+    seqref = "/html/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, seq_id)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/author/<sub1>/<sub2>/<id>/sequenceless", methods=['GET'])
+def html_author_nonseq(sub1, sub2, id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, "sequenceless")
+    self = "/html/" + idx
+    baseref = self + "/"
+    upref = "/html/author/" + id2path(id)
+    tag = "tag:root:author:" + id
+    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
+    title = "Книги вне серий автора '" + get_main_name(idx2) + "'"
+    authref = "/html/author/"
+    seqref = "/html/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, None)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/author/<sub1>/<sub2>/<id>/alphabet", methods=['GET'])
+def html_author_alphabet(sub1, sub2, id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
+    self = "/html/" + idx
+    baseref = self + "/"
+    upref = "/html/author/" + id2path(id)
+    tag = "tag:root:author:" + id + ":alphabet"
+    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
+    title = "Книги по алфавиту автора "
+    authref = "/html/author/"
+    seqref = "/html/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, None)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/author/<sub1>/<sub2>/<id>/time", methods=['GET'])
+def html_author_time(sub1, sub2, id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
+    self = "/html/" + idx
+    baseref = self + "/"
+    upref = "/html/author/" + id2path(id)
+    tag = "tag:root:author:" + id + ":time"
+    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
+    title = "Книги по дате добавления, автор "
+    authref = "/html/author/"
+    seqref = "/html/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, None, True)
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']

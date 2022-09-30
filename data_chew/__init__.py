@@ -18,7 +18,7 @@ from .strings import genres_replace, check_genres, id2path
 from .data import get_genre, get_author_struct
 from .data import get_sequence, get_lang
 from .data import get_struct_by_key, make_id, get_replace_list, replace_book
-from .data import get_title
+from .data import get_title, seqs_in_data, seq_from_data, nonseq_from_data
 from .inpx import get_inpx_meta
 
 READ_SIZE = 20480  # description in 20kb...
@@ -307,6 +307,20 @@ def make_authors(pagesdir):
             json.dump(data, idx, indent=2, ensure_ascii=False)
         with open(workpath + "/name.json", 'w') as idx:
             json.dump(name, idx, indent=2, ensure_ascii=False)
+        nonseqs = nonseq_from_data(auth_data[auth])
+        with open(workpath + "/sequenceless.json", 'w') as idx:
+            json.dump(nonseqs, idx, indent=2, ensure_ascii=False)
+        seqs = seqs_in_data(auth_data[auth])
+        with open(workpath + "/sequences.json", 'w') as idx:
+            json.dump(seqs, idx, indent=2, ensure_ascii=False)
+        for seq in seqs:
+            auth_seq = seq_from_data(seq["id"], auth_data[auth])
+            listfile = "/%s.json" % seq["id"]
+            namefile = "/%s.name.json" % seq["id"]
+            with open(workpath + listfile, 'w') as idx:
+                json.dump(auth_seq, idx, indent=2, ensure_ascii=False)
+            with open(workpath + namefile, 'w') as idx:
+                json.dump(seq['name'], idx, indent=2, ensure_ascii=False)
     for first in sorted(auth_root.keys()):
         workpath = pagesdir + auth_base + first
         Path(workpath).mkdir(parents=True, exist_ok=True)

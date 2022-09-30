@@ -61,54 +61,6 @@ def get_genre(genr):
     return genre
 
 
-# return pipe-separated string of authors from input struct
-def get_authors(author):
-    ret = "--- unknown ---"  # default
-    g = []
-    if isinstance(author, list):
-        for i in author:
-            a_tmp = []
-            if i is not None:
-                if 'last-name' in i and i['last-name'] is not None:
-                    a_tmp.append(strlist(i['last-name']))
-                if 'first-name' in i and i['first-name'] is not None:
-                    a_tmp.append(strlist(i['first-name']))
-                if 'middle-name' in i and i['middle-name'] is not None:
-                    a_tmp.append(strlist(i['middle-name']))
-                if 'nickname' in i and i['nickname'] is not None:
-                    if len(a_tmp) > 0:
-                        a_tmp.append('(' + strlist(i['nickname']) + ')')
-                    else:
-                        a_tmp.append(strlist(i['nickname']))
-                a_tmp2 = " ".join(a_tmp)
-                a_tmp2 = strip_quotes(a_tmp2).strip('|')
-                a_tmp2 = a_tmp2.strip()
-                if len(a_tmp2) > 0:
-                    g.append(a_tmp2.ljust(4))
-        if len(g) > 0:
-            ret = "|".join(g)
-    else:
-        a_tmp = []
-        if author is not None:
-            if 'last-name' in author and author['last-name'] is not None:
-                a_tmp.append(strlist(author['last-name']))
-            if 'first-name' in author and author['first-name'] is not None:
-                a_tmp.append(strlist(author['first-name']))
-            if 'middle-name' in author and author['middle-name'] is not None:
-                a_tmp.append(strlist(author['middle-name']))
-            if 'nickname' in author and author['nickname'] is not None:
-                if len(a_tmp) > 0:
-                    a_tmp.append('(' + strlist(author['nickname']) + ')')
-                else:
-                    a_tmp.append(strlist(author['nickname']))
-        r = " ".join(a_tmp)
-        r = strip_quotes(r).strip('|')
-        r = r.strip()
-        if len(r) > 0:
-            ret = r.ljust(4)
-    return ret
-
-
 # return [{"name": "Name", "id": "id"}, ...]
 def get_author_struct(author):
     ret = [{"name": '--- unknown ---', "id": make_id('--- unknown ---')}]  # default
@@ -154,54 +106,6 @@ def get_author_struct(author):
         r = r.strip()
         if len(r) > 0:
             ret = {"name": r, "id": make_id(r.ljust(4))}
-    return ret
-
-
-# return pipe-separated string of authors from input struct
-def get_author_ids(author):
-    ret = make_id("--- unknown ---".encode('utf-8'))  # default
-    g = []
-    if isinstance(author, list):
-        for i in author:
-            a_tmp = []
-            if i is not None:
-                if 'last-name' in i and i['last-name'] is not None:
-                    a_tmp.append(strlist(i['last-name']))
-                if 'first-name' in i and i['first-name'] is not None:
-                    a_tmp.append(strlist(i['first-name']))
-                if 'middle-name' in i and i['middle-name'] is not None:
-                    a_tmp.append(strlist(i['middle-name']))
-                if 'nickname' in i and i['nickname'] is not None:
-                    if len(a_tmp) > 0:
-                        a_tmp.append('(' + strlist(i['nickname']) + ')')
-                    else:
-                        a_tmp.append(strlist(i['nickname']))
-                a_tmp2 = " ".join(a_tmp)
-                a_tmp2 = strip_quotes(a_tmp2).strip('|')
-                a_tmp2 = a_tmp2.strip()
-                if len(a_tmp2) > 0:
-                    g.append(make_id(a_tmp2.ljust(4)))
-        if len(g) > 0:
-            ret = "|".join(g)
-    else:
-        a_tmp = []
-        if author is not None:
-            if 'last-name' in author and author['last-name'] is not None:
-                a_tmp.append(strlist(author['last-name']))
-            if 'first-name' in author and author['first-name'] is not None:
-                a_tmp.append(strlist(author['first-name']))
-            if 'middle-name' in author and author['middle-name'] is not None:
-                a_tmp.append(strlist(author['middle-name']))
-            if 'nickname' in author and author['nickname'] is not None:
-                if len(a_tmp) > 0:
-                    a_tmp.append('(' + strlist(author['nickname']) + ')')
-                else:
-                    a_tmp.append(strlist(author['nickname']))
-        r = " ".join(a_tmp)
-        r = strip_quotes(r).strip('|')
-        r = r.strip()
-        if len(r) > 0:
-            ret = make_id(r.ljust(4))
     return ret
 
 
@@ -265,57 +169,6 @@ def get_sequence(seq):
                     ret.append({"num": num2int(num)})
     else:
         ret.append(str(seq))
-    return ret
-
-
-def get_sequence_names(seq):
-    if isinstance(seq, str):
-        return seq
-    if isinstance(seq, dict):
-        name = None
-        if '@name' in seq:
-            name = strip_quotes(seq['@name'].strip('|').replace('«', '"').replace('»', '"'))
-            name = name.strip()
-            r = "%s" % name
-            return r
-        return ""
-    elif isinstance(seq, list):
-        ret = []
-        for s in seq:
-            name = None
-            if '@name' in s:
-                name = strip_quotes(s['@name'].strip('|').replace('«', '"').replace('»', '"'))
-                name = name.strip()
-                r = "%s" % name
-                ret.append(r)
-        return "|".join(ret)
-    return str(seq)
-
-
-def get_sequence_ids(seq):
-    ret = ""
-    if isinstance(seq, str) and seq != "":
-        ret = make_id(seq)
-    if isinstance(seq, dict):
-        name = None
-        if '@name' in seq:
-            name = strip_quotes(seq['@name'].strip('|').replace('«', '"').replace('»', '"'))
-            name = name.strip()
-            r = "%s" % name
-            if name != "":
-                return make_id(r)
-        ret = ""
-    elif isinstance(seq, list):
-        ret = []
-        for s in seq:
-            name = None
-            if '@name' in s:
-                name = strip_quotes(s['@name'].strip('|').replace('«', '"').replace('»', '"'))
-                name = name.strip()
-                r = "%s" % name.strip()
-                if r != "":
-                    ret.append(make_id(r))
-        return "|".join(ret)
     return ret
 
 
@@ -383,3 +236,48 @@ def get_title(title):
         if 'p' in title:
             return(str(title['p']).replace('«', '"').replace('»', '"'))
     return(str(title).replace('«', '"').replace('»', '"'))
+
+
+# return [{"name": "...", "id": "...", "cnt": 1}, ...]
+def seqs_in_data(data):
+    ret = []
+    seq_idx = {}
+    for book in data:
+        if book["sequences"] is not None:
+            for seq in book["sequences"]:
+                seq_id = seq["id"]
+                seq_name = seq["name"]
+                if seq_id in seq_idx:
+                    s = seq_idx[seq_id]
+                    count = s["cnt"]
+                    count = count + 1
+                    s["cnt"] = count
+                    seq_idx[seq_id] = s
+                else:
+                    s = {"name": seq_name, "id": seq_id, "cnt": 1}
+                    seq_idx[seq_id] = s
+    for seq in seq_idx:
+        ret.append(seq_idx[seq])
+    return ret
+
+
+# return books[] with seq_id
+def seq_from_data(seq_id, data):
+    ret = []
+    for book in data:
+        if book["sequences"] is not None:
+            for seq in book["sequences"]:
+                id = seq["id"]
+                if seq_id == id:
+                    ret.append(book)
+    return ret
+
+
+# return books[] without sequences
+def nonseq_from_data(data):
+    ret = []
+    for book in data:
+        if book["sequences"] is None:
+            ret.append(book)
+    return ret
+
