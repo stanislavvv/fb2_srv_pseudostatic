@@ -2,8 +2,9 @@
 
 from flask import Blueprint, Response
 from .opds import main_opds, str_list, books_list, seq_cnt_list, auth_list, main_author
-from .opds import author_seqs
+from .opds import author_seqs, get_main_name
 from .validate import validate_prefix, validate_id
+from .internals import id2path
 
 import xmltodict
 # import json
@@ -161,9 +162,81 @@ def opds_author_seqs(sub1, sub2, id):
     seqref = "/opds/sequence/"
     subtag = "tag:author:" + id + ":sequence:"
     data = author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, id)
-    title = data['feed']['title']
-    updated = data['feed']['updated']
-    entry = data['feed']['entry']
-    link = data['feed']['link']
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/author/<sub1>/<sub2>/<id>/<seq_id>", methods=['GET'])
+def opds_author_seq(sub1, sub2, id, seq_id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    seq_id = validate_id(seq_id)
+    idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, seq_id)
+    self = "/opds/" + idx
+    upref = "/opds/author/%s/%s/%s" % (sub1, sub2, id)
+    tag = "tag:root:author:" + id + ":sequence:" + seq_id
+    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
+    title = "Автор '" + get_main_name(idx2) + "', серия "
+    authref = "/opds/author/"
+    seqref = "/opds/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, seq_id)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/author/<sub1>/<sub2>/<id>/sequenceless", methods=['GET'])
+def opds_author_nonseq(sub1, sub2, id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, "sequenceless")
+    self = "/opds/" + idx
+    baseref = self + "/"
+    upref = "/opds/author/" + id2path(id)
+    tag = "tag:root:author:" + id
+    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
+    title = "Книги вне серий автора '" + get_main_name(idx2) + "'"
+    authref = "/opds/author/"
+    seqref = "/opds/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, None)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/author/<sub1>/<sub2>/<id>/alphabet", methods=['GET'])
+def opds_author_alphabet(sub1, sub2, id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
+    self = "/opds/" + idx
+    baseref = self + "/"
+    upref = "/opds/author/" + id2path(id)
+    tag = "tag:root:author:" + id + ":alphabet"
+    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
+    title = "Книги по алфавиту автора "
+    authref = "/opds/author/"
+    seqref = "/opds/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, None)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/author/<sub1>/<sub2>/<id>/time", methods=['GET'])
+def opds_author_time(sub1, sub2, id):
+    sub1 = validate_id(sub1)
+    sub2 = validate_id(sub2)
+    id = validate_id(id)
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
+    self = "/opds/" + idx
+    baseref = self + "/"
+    upref = "/opds/author/" + id2path(id)
+    tag = "tag:root:author:" + id + ":time"
+    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
+    title = "Книги по дате добавления, автор "
+    authref = "/opds/author/"
+    seqref = "/opds/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, None, True)
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')
