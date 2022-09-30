@@ -135,7 +135,7 @@ def opds_seq_cnt(idx, tag, title, baseref, self, upref, subtag, subtitle):
         ret["feed"]["entry"].append(
             {
                 "updated": dtiso,
-                "id": subtag + urllib.parse.quote(name),
+                "id": subtag + urllib.parse.quote(id),
                 "title": name,
                 "content": {
                     "@type": "text",

@@ -13,10 +13,10 @@ from datetime import datetime
 from pathlib import Path
 
 from .strings import get_genres, get_genres_meta, get_genres_replace
-from .strings import genres_replace, check_genres, rchop, id2path
+from .strings import genres_replace, check_genres, id2path
 
-from .data import get_genre, get_authors, get_author_ids, get_author_struct
-from .data import get_sequence, get_sequence_names, get_sequence_ids, get_lang
+from .data import get_genre, get_author_struct
+from .data import get_sequence, get_lang
 from .data import get_struct_by_key, make_id, get_replace_list, replace_book
 from .data import get_title
 from .inpx import get_inpx_meta
@@ -198,12 +198,6 @@ def fb2parse(z, filename, replace_data, inpx_data):
     sequence = None
     if 'sequence' in info and info['sequence'] is not None:
         sequence = get_sequence(info['sequence'])
-    seq_names = ''
-    if 'sequence' in info and info['sequence'] is not None:
-        seq_names = get_sequence_names(info['sequence'])
-    seq_ids = ''
-    if 'sequence' in info and info['sequence'] is not None:
-        seq_ids = get_sequence_ids(info['sequence'])
     book_title = ''
     if 'book-title' in info and info['book-title'] is not None:
         book_title = get_title(info['book-title'])
@@ -254,14 +248,89 @@ def make_root(pagesdir):
         idx.write(ROOT)
 
 
-
-
 def process_list(booklist):
     with open(booklist) as lst:
         data = json.load(lst)
     for book in data:
         book_id = book["book_id"]
         book_idx[book_id] = book
+
+
+def make_authors(pagesdir):
+    auth_base = "/authorsindex/"  # for author indexes
+    auth_data_base = "/author/"
+    auth_names = {}
+    auth_idx = {}
+    auth_root = {}
+    auth_subroot = {}
+    auth_data = {}
+    for book in book_idx:
+        bdata = book_idx[book]
+        if bdata["authors"] is not None:
+            for auth in bdata["authors"]:
+                auth_id = auth["id"]
+                auth_name = auth["name"]
+                auth_names[auth_id] = auth_name
+                if auth_id not in auth_idx:
+                    s = {"name": auth_name, "id": auth_id}
+                    auth_idx[auth_id] = s
+                if auth_id in auth_data:
+                    s = auth_data[auth_id]
+                    s.append(bdata)
+                    auth_data[auth_id] = s
+                else:
+                    s = []
+                    s.append(bdata)
+                    auth_data[auth_id] = s
+    for auth in auth_names:
+        name = auth_names[auth]
+        first = name[:1]
+        three = name[:3]
+        auth_root[first] = 1
+        if first in auth_subroot:
+            s = auth_subroot[first]
+            if three in s:
+                s[three].append(auth)
+            else:
+                s[three] = []
+                s[three].append(auth)
+            auth_subroot[first] = s
+        else:
+            s = {}
+            s[three] = []
+            s[three].append(auth)
+            auth_subroot[first] = s
+        workpath = pagesdir + auth_data_base + id2path(auth)
+        Path(workpath).mkdir(parents=True, exist_ok=True)
+        data = auth_data[auth]
+        with open(workpath + "/index.json", 'w') as idx:
+            json.dump(data, idx, indent=2, ensure_ascii=False)
+        with open(workpath + "/name.json", 'w') as idx:
+            json.dump(name, idx, indent=2, ensure_ascii=False)
+    for first in sorted(auth_root.keys()):
+        workpath = pagesdir + auth_base + first
+        Path(workpath).mkdir(parents=True, exist_ok=True)
+        data = []
+        for d in auth_subroot[first]:
+            data.append(d)
+        with open(workpath + "/index.json", 'w') as idx:
+            json.dump(data, idx, indent=2, ensure_ascii=False)
+        for three in auth_subroot[first]:
+            s = auth_subroot[first]
+            wpath = pagesdir + auth_base + three
+            Path(wpath).mkdir(parents=True, exist_ok=True)
+            out = []
+            for auth_id in s[three]:
+                auth = auth_idx[auth_id]
+                out.append(auth)
+            with open(wpath + "/index.json", 'w') as idx:
+                json.dump(out, idx, indent=2, ensure_ascii=False)
+    workpath = pagesdir + auth_base
+    data = []
+    for s in auth_root:
+        data.append(s)
+    with open(workpath + "/index.json", 'w') as idx:
+        json.dump(data, idx, indent=2, ensure_ascii=False)
 
 
 def make_sequences(pagesdir):
@@ -346,6 +415,7 @@ def make_sequences(pagesdir):
     with open(workpath + "/index.json", 'w') as idx:
         json.dump(data, idx, indent=2, ensure_ascii=False)
 
+
 def process_lists(zipdir, pagesdir):
     logging.info("Prerocessing lists...")
     get_genres_meta()
@@ -358,3 +428,4 @@ def process_lists(zipdir, pagesdir):
         process_list(booklist)
         i = i + 1
     make_sequences(pagesdir)
+    make_authors(pagesdir)

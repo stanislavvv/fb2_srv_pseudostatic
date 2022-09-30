@@ -19,10 +19,9 @@ NIH-проект
 - `/sequence/<SeqCut>/<SeqCut2>/<SequenceID>/index.json` - страница книжной серии
 
 Страницы автора:
-- `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/index.json` - главная
+- `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/index.json` - все книги автора
 - `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/sequences.json` - серии
 - `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/sequenceless.json` - вне серий
-- `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/all.json` - все книги автора
 - `/author/<AuthorCut>/<AuthorCut2>/<AuthorID>/<SequenceID>.json` - книги автора в серии
 
 AuthorCut и SeqCut - первые 2 символа от соответствующих ID,

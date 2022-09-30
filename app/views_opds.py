@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import Blueprint, Response
-from .opds import main_opds, opds_str, opds_books
+from .opds import main_opds, opds_str, opds_books, opds_seq_cnt
 from .validate import validate_prefix
 
 import xmltodict
@@ -49,7 +49,7 @@ def opds_seq_sub(sub):
         title = "Серии книг"
         subtag = "tag:sequences:"
         subtitle = "Книги на "
-        data = opds_seq(idx, tag, title, baseref, self, upref, subtag, subtitle)
+        data = opds_seq_cnt(idx, tag, title, baseref, self, upref, subtag, subtitle)
     elif len(sub) == 1:
         idx = "sequencesindex/" + sub
         self = "/opds/sequencesindex/" + sub
