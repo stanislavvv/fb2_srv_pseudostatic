@@ -27,7 +27,7 @@ def make_id(name):
 
 
 # return pipe-separated string of genres from input struct
-def get_genre(genr):
+def get_genre_pipe(genr):
     genre = ""  # default
     g = []
     if isinstance(genr, dict):
@@ -59,6 +59,39 @@ def get_genre(genr):
     else:
         genre = str(genr.ljust(4))
     return genre
+
+
+# return array of genres
+def get_genre(genr):
+    genre = ""  # default
+    g = []
+    if isinstance(genr, dict):
+        for k, v in genr.items():
+            if type(v) is str and not v.isdigit() and v != "":
+                g.append(v)
+            elif isinstance(v, dict):
+                for k, v2 in v.items():
+                    if not v2.isdigit() and v2 != "":
+                        g.append(v2)
+            elif isinstance(v, list):
+                for v2 in v:
+                    if not v2.isdigit() and v2 != "":
+                        g.append(v2)
+    elif isinstance(genr, list):
+        for i in genr:
+            if type(i) is str and not i.isdigit() and i != "":
+                g.append(i)
+            elif isinstance(i, dict):
+                for k, v in i.items():
+                    if not v.isdigit() and v != "":
+                        g.append(v)
+            elif isinstance(i, list):
+                for v in i:
+                    if not v.isdigit() and v != "":
+                        g.append(v)
+    else:
+        g.append(genr)
+    return g
 
 
 # return [{"name": "Name", "id": "id"}, ...]

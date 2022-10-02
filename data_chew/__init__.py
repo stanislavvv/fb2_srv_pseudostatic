@@ -13,7 +13,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .strings import get_genres, get_genres_meta, get_genres_replace, genres
-from .strings import genres_replace, check_genres, id2path
+from .strings import genres_replace, check_genres, id2path, get_genre_meta, get_meta_name
 
 from .data import get_genre, get_author_struct
 from .data import get_sequence, get_lang
@@ -438,10 +438,14 @@ def make_genres(pagesdir):
     gen_root = {}
     gen_subroot = {}
     gen_data = {}
+
+    workpath = pagesdir + gen_base
+    genpath_base = pagesdir + gen_data_base
+
     for book in book_idx:
         bdata = book_idx[book]
         if bdata["genres"] is not None:
-            for gen in bdata["genres"].split("|"):
+            for gen in bdata["genres"]:
                 gen_id = gen
                 gen_name = gen
                 if gen in genres:
@@ -466,50 +470,32 @@ def make_genres(pagesdir):
                     gen_data[gen_id] = s
     for gen in gen_names:
         name = gen_names[gen]
-        first = name[:1]
-        three = name[:3]
-        gen_root[first] = 1
-        if first in gen_subroot:
-            s = gen_subroot[first]
-            if three in s:
-                s[three].append(gen)
-            else:
-                s[three] = []
-                s[three].append(gen)
-            gen_subroot[first] = s
-        else:
-            s = {}
-            s[three] = []
-            s[three].append(gen)
-            gen_subroot[first] = s
-        workpath = pagesdir + gen_data_base + gen
-        Path(workpath).mkdir(parents=True, exist_ok=True)
+        meta_id = get_genre_meta(gen)
+        if meta_id not in gen_root:
+            gen_root[meta_id] = []
+        gen_root[meta_id].append({"name": name, "id": gen})
+        genpath = genpath_base + gen
+        Path(genpath).mkdir(parents=True, exist_ok=True)
         data = gen_data[gen]
-        with open(workpath + "/index.json", 'w') as idx:
+        with open(genpath + "/index.json", 'w') as idx:
             json.dump(data, idx, indent=2, ensure_ascii=False)
-        with open(workpath + "/name.json", 'w') as idx:
+        with open(genpath + "/name.json", 'w') as idx:
             json.dump(name, idx, indent=2, ensure_ascii=False)
-    for first in sorted(gen_root.keys()):
-        workpath = pagesdir + gen_base + first
-        Path(workpath).mkdir(parents=True, exist_ok=True)
-        data = []
-        for d in gen_subroot[first]:
-            data.append(d)
-        with open(workpath + "/index.json", 'w') as idx:
+        meta_name = get_meta_name(meta_id)
+    for meta in gen_root:
+        metapath = workpath + "/" + str(meta)
+        Path(metapath).mkdir(parents=True, exist_ok=True)
+        data = gen_root[meta]
+        with open(metapath + "/index.json", 'w') as idx:
             json.dump(data, idx, indent=2, ensure_ascii=False)
-        for three in gen_subroot[first]:
-            s = gen_subroot[first]
-            wpath = pagesdir + gen_base + three
-            Path(wpath).mkdir(parents=True, exist_ok=True)
-            out = []
-            for gen_id in s[three]:
-                gen = gen_idx[gen_id]
-                out.append(gen)
-            with open(wpath + "/index.json", 'w') as idx:
-                json.dump(out, idx, indent=2, ensure_ascii=False)
-    workpath = pagesdir + gen_base
+        meta_name = get_meta_name(meta_id)
+        with open(metapath + "/name.json", 'w') as idx:
+            json.dump(meta_name, idx, indent=2, ensure_ascii=False)
+        meta_name = get_meta_name(meta_id)
     data = []
-    for s in gen_root:
+    for meta_id in gen_root:
+        meta_name = get_meta_name(meta_id)
+        s = {"name": meta_name, "id": meta_id}
         data.append(s)
     with open(workpath + "/index.json", 'w') as idx:
         json.dump(data, idx, indent=2, ensure_ascii=False)
