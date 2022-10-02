@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from pathlib import Path
 
-from .strings import get_genres, get_genres_meta, get_genres_replace
+from .strings import get_genres, get_genres_meta, get_genres_replace, genres
 from .strings import genres_replace, check_genres, id2path
 
 from .data import get_genre, get_author_struct
@@ -430,6 +430,91 @@ def make_sequences(pagesdir):
         json.dump(data, idx, indent=2, ensure_ascii=False)
 
 
+def make_genres(pagesdir):
+    gen_base = "/genresindex/"  # for genre indexes
+    gen_data_base = "/genre/"  # for genre data
+    gen_names = {}
+    gen_idx = {}
+    gen_root = {}
+    gen_subroot = {}
+    gen_data = {}
+    for book in book_idx:
+        bdata = book_idx[book]
+        if bdata["genres"] is not None:
+            for gen in bdata["genres"].split("|"):
+                gen_id = gen
+                gen_name = gen
+                if gen in genres:
+                    gen_name = genres[gen]["descr"]
+                gen_names[gen_id] = gen_name
+                if gen_id in gen_idx:
+                    s = gen_idx[gen_id]
+                    count = s["cnt"]
+                    count = count + 1
+                    s["cnt"] = count
+                    gen_idx[gen_id] = s
+                else:
+                    s = {"name": gen_name, "id": gen_id, "cnt": 1}
+                    gen_idx[gen_id] = s
+                if gen_id in gen_data:
+                    s = gen_data[gen_id]
+                    s.append(bdata)
+                    gen_data[gen_id] = s
+                else:
+                    s = []
+                    s.append(bdata)
+                    gen_data[gen_id] = s
+    for gen in gen_names:
+        name = gen_names[gen]
+        first = name[:1]
+        three = name[:3]
+        gen_root[first] = 1
+        if first in gen_subroot:
+            s = gen_subroot[first]
+            if three in s:
+                s[three].append(gen)
+            else:
+                s[three] = []
+                s[three].append(gen)
+            gen_subroot[first] = s
+        else:
+            s = {}
+            s[three] = []
+            s[three].append(gen)
+            gen_subroot[first] = s
+        workpath = pagesdir + gen_data_base + gen
+        Path(workpath).mkdir(parents=True, exist_ok=True)
+        data = gen_data[gen]
+        with open(workpath + "/index.json", 'w') as idx:
+            json.dump(data, idx, indent=2, ensure_ascii=False)
+        with open(workpath + "/name.json", 'w') as idx:
+            json.dump(name, idx, indent=2, ensure_ascii=False)
+    for first in sorted(gen_root.keys()):
+        workpath = pagesdir + gen_base + first
+        Path(workpath).mkdir(parents=True, exist_ok=True)
+        data = []
+        for d in gen_subroot[first]:
+            data.append(d)
+        with open(workpath + "/index.json", 'w') as idx:
+            json.dump(data, idx, indent=2, ensure_ascii=False)
+        for three in gen_subroot[first]:
+            s = gen_subroot[first]
+            wpath = pagesdir + gen_base + three
+            Path(wpath).mkdir(parents=True, exist_ok=True)
+            out = []
+            for gen_id in s[three]:
+                gen = gen_idx[gen_id]
+                out.append(gen)
+            with open(wpath + "/index.json", 'w') as idx:
+                json.dump(out, idx, indent=2, ensure_ascii=False)
+    workpath = pagesdir + gen_base
+    data = []
+    for s in gen_root:
+        data.append(s)
+    with open(workpath + "/index.json", 'w') as idx:
+        json.dump(data, idx, indent=2, ensure_ascii=False)
+
+
 def process_lists(zipdir, pagesdir):
     logging.info("Prerocessing lists...")
     get_genres_meta()
@@ -443,3 +528,4 @@ def process_lists(zipdir, pagesdir):
         i = i + 1
     make_sequences(pagesdir)
     make_authors(pagesdir)
+    make_genres(pagesdir)
