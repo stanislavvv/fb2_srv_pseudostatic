@@ -363,26 +363,28 @@ def make_sequences(pagesdir):
         bdata = book_idx[book]
         if bdata["sequences"] is not None:
             for seq in bdata["sequences"]:
-                seq_id = seq["id"]
                 seq_name = seq["name"]
-                seq_names[seq_id] = seq_name
-                if seq_id in seq_idx:
-                    s = seq_idx[seq_id]
-                    count = s["cnt"]
-                    count = count + 1
-                    s["cnt"] = count
-                    seq_idx[seq_id] = s
-                else:
-                    s = {"name": seq_name, "id": seq_id, "cnt": 1}
-                    seq_idx[seq_id] = s
-                if seq_id in seq_data:
-                    s = seq_data[seq_id]
-                    s.append(bdata)
-                    seq_data[seq_id] = s
-                else:
-                    s = []
-                    s.append(bdata)
-                    seq_data[seq_id] = s
+                if seq_name is not None and seq_name != "":
+                    seq_id = seq["id"]
+                    seq_name = seq["name"]
+                    seq_names[seq_id] = seq_name
+                    if seq_id in seq_idx:
+                        s = seq_idx[seq_id]
+                        count = s["cnt"]
+                        count = count + 1
+                        s["cnt"] = count
+                        seq_idx[seq_id] = s
+                    else:
+                        s = {"name": seq_name, "id": seq_id, "cnt": 1}
+                        seq_idx[seq_id] = s
+                    if seq_id in seq_data:
+                        s = seq_data[seq_id]
+                        s.append(bdata)
+                        seq_data[seq_id] = s
+                    else:
+                        s = []
+                        s.append(bdata)
+                        seq_data[seq_id] = s
     allseqs = []
     for seq in seq_names:
         allseqs.append(seq_idx[seq])
