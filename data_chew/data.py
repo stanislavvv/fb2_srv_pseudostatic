@@ -278,17 +278,18 @@ def seqs_in_data(data):
     for book in data:
         if book["sequences"] is not None:
             for seq in book["sequences"]:
-                seq_id = seq["id"]
-                seq_name = seq["name"]
-                if seq_id in seq_idx:
-                    s = seq_idx[seq_id]
-                    count = s["cnt"]
-                    count = count + 1
-                    s["cnt"] = count
-                    seq_idx[seq_id] = s
-                else:
-                    s = {"name": seq_name, "id": seq_id, "cnt": 1}
-                    seq_idx[seq_id] = s
+                seq_id = seq.get("id")
+                if seq_id is not None:
+                    seq_name = seq["name"]
+                    if seq_id in seq_idx:
+                        s = seq_idx[seq_id]
+                        count = s["cnt"]
+                        count = count + 1
+                        s["cnt"] = count
+                        seq_idx[seq_id] = s
+                    else:
+                        s = {"name": seq_name, "id": seq_id, "cnt": 1}
+                        seq_idx[seq_id] = s
     for seq in seq_idx:
         ret.append(seq_idx[seq])
     return ret
