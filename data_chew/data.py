@@ -138,7 +138,7 @@ def get_author_struct(author):
         r = strip_quotes(r).strip('|')
         r = r.strip()
         if len(r) > 0:
-            ret = {"name": r, "id": make_id(r.ljust(4))}
+            ret = [{"name": r, "id": make_id(r.ljust(4))}]
     return ret
 
 
