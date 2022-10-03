@@ -83,7 +83,6 @@ def html_seq(sub1, sub2, id):
     sub2 = validate_id(sub2)
     id = validate_id(id)
     idx = "sequence/%s/%s/%s" % (sub1, sub2, id)
-    baseref = ""
     self = "/html/" + idx
     upref = "/html/"
     tag = "tag:root:sequence:" + id
@@ -158,7 +157,6 @@ def html_author(sub1, sub2, id):
     id = validate_id(id)
     idx = "author/%s/%s/%s" % (sub1, sub2, id)
     self = "/html/" + idx
-    baseref = ""
     upref = "/html/authorsindex/"
     tag = "tag:root:author:" + id
     title = "Автор "
@@ -226,7 +224,6 @@ def html_author_nonseq(sub1, sub2, id):
     id = validate_id(id)
     idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, "sequenceless")
     self = "/html/" + idx
-    baseref = self + "/"
     upref = "/html/author/" + id2path(id)
     tag = "tag:root:author:" + id
     idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
@@ -249,10 +246,8 @@ def html_author_alphabet(sub1, sub2, id):
     id = validate_id(id)
     idx = "author/%s/%s/%s" % (sub1, sub2, id)
     self = "/html/" + idx
-    baseref = self + "/"
     upref = "/html/author/" + id2path(id)
     tag = "tag:root:author:" + id + ":alphabet"
-    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
     title = "Книги по алфавиту автора "
     authref = "/html/author/"
     seqref = "/html/sequence/"
@@ -272,10 +267,8 @@ def html_author_time(sub1, sub2, id):
     id = validate_id(id)
     idx = "author/%s/%s/%s" % (sub1, sub2, id)
     self = "/html/" + idx
-    baseref = self + "/"
     upref = "/html/author/" + id2path(id)
     tag = "tag:root:author:" + id + ":time"
-    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
     title = "Книги по дате добавления, автор "
     authref = "/html/author/"
     seqref = "/html/sequence/"
@@ -333,7 +326,6 @@ def html_gen_meta(sub):
 def html_genre(id):
     id = validate_genre(id)
     idx = "genre/%s" % (id)
-    baseref = ""
     self = "/html/" + idx
     upref = "/html/"
     tag = "tag:root:genre:" + id
@@ -379,8 +371,6 @@ def html_random_books():
     link = data['feed']['link']
     page = render_template('opds_sequence.html', title=title, updated=updated, link=link, entry=entry)
     return Response(page, mimetype='text/html')
-
-
 
 
 @html.route("/html/random-sequences/", methods=['GET'])

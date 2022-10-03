@@ -63,7 +63,6 @@ def get_genre_pipe(genr):
 
 # return array of genres
 def get_genre(genr):
-    genre = ""  # default
     g = []
     if isinstance(genr, dict):
         for k, v in genr.items():
@@ -314,4 +313,3 @@ def nonseq_from_data(data):
         if book["sequences"] is None:
             ret.append(book)
     return ret
-

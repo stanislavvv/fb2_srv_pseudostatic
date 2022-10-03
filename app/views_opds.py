@@ -2,7 +2,7 @@
 
 from flask import Blueprint, Response
 from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main_author
-from .opds import author_seqs, get_main_name, name_list
+from .opds import author_seqs, get_main_name, name_list, random_data
 from .validate import validate_prefix, validate_id, validate_genre_meta, validate_genre
 from .internals import id2path
 
@@ -72,7 +72,6 @@ def opds_seq(sub1, sub2, id):
     sub2 = validate_id(sub2)
     id = validate_id(id)
     idx = "sequence/%s/%s/%s" % (sub1, sub2, id)
-    baseref = ""
     self = "/opds/" + idx
     upref = "/opds/"
     tag = "tag:root:sequence:" + id
@@ -135,7 +134,6 @@ def opds_author(sub1, sub2, id):
     sub2 = validate_id(sub2)
     id = validate_id(id)
     idx = "author/%s/%s/%s" % (sub1, sub2, id)
-    baseref = ""
     self = "/opds/" + idx
     upref = "/opds/authorsindex/"
     tag = "tag:root:author:" + id
@@ -192,7 +190,6 @@ def opds_author_nonseq(sub1, sub2, id):
     id = validate_id(id)
     idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, "sequenceless")
     self = "/opds/" + idx
-    baseref = self + "/"
     upref = "/opds/author/" + id2path(id)
     tag = "tag:root:author:" + id
     idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
@@ -211,10 +208,8 @@ def opds_author_alphabet(sub1, sub2, id):
     id = validate_id(id)
     idx = "author/%s/%s/%s" % (sub1, sub2, id)
     self = "/opds/" + idx
-    baseref = self + "/"
     upref = "/opds/author/" + id2path(id)
     tag = "tag:root:author:" + id + ":alphabet"
-    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
     title = "Книги по алфавиту автора "
     authref = "/opds/author/"
     seqref = "/opds/sequence/"
@@ -230,10 +225,8 @@ def opds_author_time(sub1, sub2, id):
     id = validate_id(id)
     idx = "author/%s/%s/%s" % (sub1, sub2, id)
     self = "/opds/" + idx
-    baseref = self + "/"
     upref = "/opds/author/" + id2path(id)
     tag = "tag:root:author:" + id + ":time"
-    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
     title = "Книги по дате добавления, автор "
     authref = "/opds/author/"
     seqref = "/opds/sequence/"
@@ -279,7 +272,6 @@ def opds_gen_meta(sub):
 def opds_genre(id):
     id = validate_genre(id)
     idx = "genre/%s" % (id)
-    baseref = ""
     self = "/opds/" + idx
     upref = "/opds/"
     tag = "tag:root:genre:" + id
@@ -287,5 +279,61 @@ def opds_genre(id):
     authref = "/opds/author/"
     seqref = "/opds/sequence/"
     data = books_list(idx, tag, title, self, upref, authref, seqref, id)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/random-books/", methods=['GET'])
+def opds_random_books():
+    baseref = ""  # not for books
+    self = "/opds/random-books/"
+    upref = "/opds/"
+    tag = "tag:search:books:random:"
+    title = "Поиск случайных книг"
+    authref = "/opds/author/"
+    seqref = "/opds/sequence/"
+    datafile = "allbooks.json"
+    cntfile = "allbookscnt.json"
+    subtag = ""  # not for books
+    data = random_data(
+                datafile,
+                cntfile,
+                tag,
+                title,
+                baseref,
+                self,
+                upref,
+                authref,
+                seqref,
+                subtag,
+                True)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/random-sequences/", methods=['GET'])
+def opds_random_seqs():
+    baseref = "/opds/"
+    self = "/opds/random-sequences/"
+    upref = "/opds/"
+    tag = "tag:search:sequences:random:"
+    title = "Поиск случайных серий"
+    authref = "/opds/author/"
+    seqref = "/opds/sequence/"
+    datafile = "allsequences.json"
+    cntfile = "allsequencecnt.json"
+    subtag = "tag:sequence:"
+    data = random_data(
+                datafile,
+                cntfile,
+                tag,
+                title,
+                baseref,
+                self,
+                upref,
+                authref,
+                seqref,
+                subtag,
+                False)
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')

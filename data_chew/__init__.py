@@ -264,11 +264,9 @@ def make_authors(pagesdir):
     auth_root = {}
     auth_subroot = {}
     auth_data = {}
-    allbooks = []
     allbookids = []
     for book in book_idx:
         bdata = book_idx[book]
-        allbooks.append(bdata)
         allbookids.append(book)
         if bdata["authors"] is not None:
             for auth in bdata["authors"]:
@@ -389,10 +387,8 @@ def make_sequences(pagesdir):
                         s = []
                         s.append(bdata)
                         seq_data[seq_id] = s
-    allseqs = []
     allseqids = []
     for seq in seq_names:
-        allseqs.append(seq_idx[seq])
         allseqids.append(seq)
         name = seq_names[seq]
         first = unicode_upper(name[:1])
@@ -455,7 +451,6 @@ def make_genres(pagesdir):
     gen_names = {}
     gen_idx = {}
     gen_root = {}
-    gen_subroot = {}
     gen_data = {}
 
     workpath = pagesdir + gen_base
