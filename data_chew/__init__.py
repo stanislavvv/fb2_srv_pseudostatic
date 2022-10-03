@@ -264,10 +264,11 @@ def make_authors(pagesdir):
     auth_root = {}
     auth_subroot = {}
     auth_data = {}
-    allbookids = []
+    allbookscnt = 0
+    logging.debug(" - processing books...")
     for book in book_idx:
         bdata = book_idx[book]
-        allbookids.append(book)
+        allbookscnt = allbookscnt + 1
         if bdata["authors"] is not None:
             for auth in bdata["authors"]:
                 auth_id = auth.get("id")
@@ -285,14 +286,16 @@ def make_authors(pagesdir):
                         s = []
                         s.append(bdata)
                         auth_data[auth_id] = s
+    logging.debug(" - saving global indexes...")
     with open(pagesdir + "/allbooks.json", 'w') as idx:
         json.dump({"data": book_idx}, idx, indent=2, ensure_ascii=False)
     with open(pagesdir + "/allauthors.json", 'w') as idx:
         json.dump({"data": auth_idx}, idx, indent=2, ensure_ascii=False)
     with open(pagesdir + "/allbookscnt.json", 'w') as idx:
-        json.dump(len(allbookids), idx, indent=2, ensure_ascii=False)
+        json.dump(allbookscnt, idx, indent=2, ensure_ascii=False)
     with open(pagesdir + "/allauthorcnt.json", 'w') as idx:
         json.dump(len(auth_names), idx, indent=2, ensure_ascii=False)
+    logging.debug(" - processing author names...")
     for auth in auth_names:
         name = auth_names[auth]
         first = unicode_upper(name[:1])
@@ -332,6 +335,7 @@ def make_authors(pagesdir):
                 json.dump(auth_seq, idx, indent=2, ensure_ascii=False)
             with open(workpath + namefile, 'w') as idx:
                 json.dump(seq['name'], idx, indent=2, ensure_ascii=False)
+    logging.debug(" - saving partial indexes...")
     for first in sorted(auth_root.keys()):
         workpath = pagesdir + auth_base + first
         Path(workpath).mkdir(parents=True, exist_ok=True)
@@ -354,6 +358,7 @@ def make_authors(pagesdir):
     data = []
     for s in auth_root:
         data.append(s)
+    logging.debug(" - saving main authors index...")
     with open(workpath + "/index.json", 'w') as idx:
         json.dump(data, idx, indent=2, ensure_ascii=False)
 
@@ -465,6 +470,7 @@ def make_genres(pagesdir):
     workpath = pagesdir + gen_base
     genpath_base = pagesdir + gen_data_base
 
+    logging.debug(" - processing books...")
     for book in book_idx:
         bdata = book_idx[book]
         if bdata["genres"] is not None:
@@ -491,6 +497,7 @@ def make_genres(pagesdir):
                     s = []
                     s.append(bdata)
                     gen_data[gen_id] = s
+    logging.debug(" - processing genres names...")
     for gen in gen_names:
         name = gen_names[gen]
         meta_id = get_genre_meta(gen)
@@ -505,6 +512,7 @@ def make_genres(pagesdir):
         with open(genpath + "/name.json", 'w') as idx:
             json.dump(name, idx, indent=2, ensure_ascii=False)
         meta_name = get_meta_name(meta_id)
+    logging.debug(" - processing genres metas...")
     for meta in gen_root:
         metapath = workpath + "/" + str(meta)
         Path(metapath).mkdir(parents=True, exist_ok=True)
@@ -520,11 +528,12 @@ def make_genres(pagesdir):
         meta_name = get_meta_name(meta_id)
         s = {"name": meta_name, "id": meta_id}
         data.append(s)
+    logging.debug(" - saving main genres index...")
     with open(workpath + "/index.json", 'w') as idx:
         json.dump(data, idx, indent=2, ensure_ascii=False)
 
 
-def process_lists(zipdir, pagesdir):
+def process_lists(zipdir, pagesdir, stage):
     logging.info("Preprocessing lists...")
     get_genres_meta()
     get_genres()  # official genres from genres.list
@@ -535,9 +544,12 @@ def process_lists(zipdir, pagesdir):
         logging.info("[" + str(i) + "] " + booklist)
         process_list(booklist)
         i = i + 1
-    logging.info("Make sequences index...")
-    make_sequences(pagesdir)
-    logging.info("Make authors index...")
-    make_authors(pagesdir)
-    logging.info("Make genres index...")
-    make_genres(pagesdir)
+    if stage == "sequences":
+        logging.info("Make sequences index...")
+        make_sequences(pagesdir)
+    elif stage == "authors":
+        logging.info("Make authors index...")
+        make_authors(pagesdir)
+    elif stage == "genres":
+        logging.info("Make genres index...")
+        make_genres(pagesdir)

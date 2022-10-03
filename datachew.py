@@ -25,7 +25,7 @@ def usage():
     print(" asnew       -- [re]create static data from scratch, including lists")
     print(" lists       -- make all lists from zips, does not touch static data")
     print(" new_lists   -- update lists from updated/new zips, does not touch static data")
-    print(" fromlists   -- [re]make static data from lists")
+    print(" stage[1-3]  -- stage1, stage2, stage3 for creating static pages")
 
 
 def clean():
@@ -57,11 +57,11 @@ def new_lists():
         update_booklist(inpx_data, zip_file)
 
 
-def fromlists():
+def fromlists(stage):
     zipdir = app.config['ZIPS']
     pagesdir = app.config['STATIC']
     make_root(pagesdir)
-    process_lists(zipdir, pagesdir)
+    process_lists(zipdir, pagesdir, stage)
 
 
 if __name__ == "__main__":
@@ -79,8 +79,12 @@ if __name__ == "__main__":
             renew_lists()
         elif sys.argv[1] == "new_lists":
             new_lists()
-        elif sys.argv[1] == "fromlists":
-            fromlists()
+        elif sys.argv[1] == "stage1":
+            fromlists("sequences")
+        elif sys.argv[1] == "stage2":
+            fromlists("authors")
+        elif sys.argv[1] == "stage3":
+            fromlists("genres")
         else:
             usage()
     else:
