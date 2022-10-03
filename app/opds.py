@@ -487,3 +487,60 @@ def get_main_name(idx):
         logging.error(e)
         return ret
     return data
+
+
+# for [{name: ..., id: ...}, ...]
+def name_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
+    dtiso = get_dtiso()
+    approot = current_app.config['APPLICATION_ROOT']
+    rootdir = current_app.config['STATIC']
+    workdir = rootdir + "/" + idx
+    ret = ret_hdr()
+    ret["feed"]["updated"] = dtiso
+    ret["feed"]["title"] = title
+    ret["feed"]["id"] = tag
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + self,
+            "@rel": "self",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + upref,
+            "@rel": "up",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+
+    try:
+        if os.path.isdir(workdir):
+            with open(workdir + "/index.json") as jsfile:
+                data = json.load(jsfile)
+        else:
+            with open(workdir + ".json") as jsfile:
+                data = json.load(jsfile)
+    except Exception as e:
+        logging.error(e)
+        return ret
+    for d in sorted(data, key = lambda s: s["name"] or -1):
+        name = d["name"]
+        id = d["id"]
+        print(d)
+        ret["feed"]["entry"].append(
+            {
+                "updated": dtiso,
+                "id": subtag + urllib.parse.quote(str(id)),
+                "title": name,
+                "content": {
+                    "@type": "text",
+                    "#text": name
+                },
+                "link": {
+                    "@href": approot + baseref + urllib.parse.quote(str(id)),
+                    "@type": "application/atom+xml;profile=opds-catalog"
+                }
+            }
+        )
+    return ret

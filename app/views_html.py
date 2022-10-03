@@ -2,8 +2,8 @@
 
 from flask import Blueprint, Response, render_template
 from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main_author
-from .opds import author_seqs, get_main_name
-from .validate import validate_prefix, validate_id
+from .opds import author_seqs, get_main_name, name_list
+from .validate import validate_prefix, validate_id, validate_genre_meta, validate_genre
 from .internals import id2path
 
 # import json
@@ -280,6 +280,67 @@ def html_author_time(sub1, sub2, id):
     authref = "/html/author/"
     seqref = "/html/sequence/"
     data = books_list(idx, tag, title, self, upref, authref, seqref, None, True)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/genresindex", methods=['GET'])
+@html.route("/html/genresindex/", methods=['GET'])
+def html_gen_root():
+    idx = "genresindex"
+    self = "/html/genresindex/"
+    baseref = self
+    upref = "/html/"
+    tag = "tag:root:genres"
+    title = "Группы жанров"
+    subtag = "tag:genres:"
+    subtitle = "Книги на "
+    data = name_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_root.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/genresindex/<sub>", methods=['GET'])
+def html_gen_meta(sub):
+    sub = validate_genre_meta(sub)
+    data = []
+    idx = "genresindex/" + sub
+    self = "/html/genresindex/" + sub
+    baseref = "/html/genre/"
+    upref = "/html/genresindex/"
+    tag = "tag:genres:" + sub
+    title = "Жанры"
+    subtag = "tag:genres:"
+    subtitle = "Книги на "
+    data = name_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_root.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/genre/<id>", methods=['GET'])
+def html_genre(id):
+    id = validate_genre(id)
+    idx = "genre/%s" % (id)
+    baseref = ""
+    self = "/html/" + idx
+    upref = "/html/"
+    tag = "tag:root:genre:" + id
+    title = "Серия "
+    authref = "/html/author/"
+    seqref = "/html/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, id)
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']

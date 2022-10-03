@@ -44,6 +44,20 @@ def validate_prefix(s: str):
     return ret
 
 
+def validate_genre(s: str):
+    ret = s
+    if genre_check.match(s):
+        return ret
+    return None
+
+
+def validate_genre_meta(s: str):
+    ret = s
+    if genre_check.match(s):
+        return ret
+    return None
+
+
 # search pattern some normalization
 def validate_search(s: str):
     ret = unurl(s).replace('"', '`').replace("'", '`').replace(';', '')

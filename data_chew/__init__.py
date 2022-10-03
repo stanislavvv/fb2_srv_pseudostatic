@@ -89,7 +89,7 @@ ROOT = """
           "#text": "По жанрам"
         },
         "link": {
-          "@href": "/opds/genres/",
+          "@href": "/opds/genresindex/",
           "@type": "application/atom+xml;profile=opds-catalog"
         }
       },
