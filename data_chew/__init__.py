@@ -366,6 +366,7 @@ def make_sequences(pagesdir):
     seq_root = {}
     seq_subroot = {}
     seq_data = {}
+    logging.debug(" - processing books...")
     for book in book_idx:
         bdata = book_idx[book]
         if bdata["sequences"] is not None:
@@ -391,9 +392,10 @@ def make_sequences(pagesdir):
                         s = []
                         s.append(bdata)
                         seq_data[seq_id] = s
-    allseqids = []
+    seq_cnt = 0
+    logging.debug(" - processing sequences names")
     for seq in seq_names:
-        allseqids.append(seq)
+        seq_cnt = seq_cnt + 1
         name = seq_names[seq]
         first = unicode_upper(name[:1])
         three = unicode_upper(name[:3])
@@ -418,10 +420,12 @@ def make_sequences(pagesdir):
             json.dump(data, idx, indent=2, ensure_ascii=False)
         with open(workpath + "/name.json", 'w') as idx:
             json.dump(name, idx, indent=2, ensure_ascii=False)
+    logging.debug(" - saving global indexes...")
     with open(pagesdir + "/allsequences.json", 'w') as idx:
         json.dump({"data": seq_idx}, idx, indent=2, ensure_ascii=False)
     with open(pagesdir + "/allsequencecnt.json", 'w') as idx:
-        json.dump(len(allseqids), idx, indent=2, ensure_ascii=False)
+        json.dump(seq_cnt, idx, indent=2, ensure_ascii=False)
+    logging.debug(" - saving partial indexes...")
     for first in sorted(seq_root.keys()):
         workpath = pagesdir + seq_base + first
         Path(workpath).mkdir(parents=True, exist_ok=True)
@@ -445,6 +449,7 @@ def make_sequences(pagesdir):
     data = []
     for s in seq_root:
         data.append(s)
+    logging.debug(" - saving sequence root index...")
     with open(workpath + "/index.json", 'w') as idx:
         json.dump(data, idx, indent=2, ensure_ascii=False)
 

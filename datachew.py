@@ -7,6 +7,7 @@ import glob
 # import sqlite3
 # import json
 import logging
+import shutil
 
 from app import create_app
 from data_chew import INPX
@@ -28,7 +29,12 @@ def usage():
 
 
 def clean():
-    print("NOT cleanup static data -- UNIMPLEMENTED")
+    workdir = app.config['STATIC']
+    logging.info("cleanup static data...")
+    try:
+        shutil.rmtree(workdir)
+    except Exception as e:
+        logging.fatal(e)
 
 
 def renew_lists():
