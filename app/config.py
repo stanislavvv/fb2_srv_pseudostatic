@@ -22,6 +22,7 @@ class DevelopmentConfig(Config):
     FB2_XSLT = 'fb2_to_html.xsl'
     APPLICATION_ROOT = ''
     PAGE_SIZE = 10
+    MAX_SEARCH_RES = 50
 
 
 class TestConfig(Config):
@@ -36,6 +37,7 @@ class TestConfig(Config):
     FB2_XSLT = 'fb2_to_html.xsl'
     APPLICATION_ROOT = '/books'
     PAGE_SIZE = 10
+    MAX_SEARCH_RES = 50
 
 
 class ProductionConfig(Config):
@@ -49,6 +51,7 @@ class ProductionConfig(Config):
     FB2_XSLT = 'fb2_to_html.xsl'
     APPLICATION_ROOT = '/books'
     PAGE_SIZE = 50
+    MAX_SEARCH_RES = 500
 
 
 config = {"development": DevelopmentConfig, "test": TestConfig, "prod": ProductionConfig}

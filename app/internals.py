@@ -86,3 +86,11 @@ def url_str(s):
                 c = tr[c]
             ret = ret + c
     return urllib.parse.quote(ret, encoding='utf-8')
+
+
+# DUMMY, ToDo: rewrite with unicode_upper and some other
+# true if sub in s
+def is_substr(sub, s):
+    if sub in s:
+        return True
+    return False

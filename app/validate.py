@@ -60,6 +60,8 @@ def validate_genre_meta(s: str):
 
 # search pattern some normalization
 def validate_search(s: str):
+    if s is None:
+        return ""
     ret = unurl(s).replace('"', '`').replace("'", '`').replace(';', '')
     if len(ret) > 128:
         ret = ret[:128]

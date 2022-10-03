@@ -2,7 +2,7 @@
 
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
-from .internals import get_book_link
+from .internals import get_book_link, url_str, is_substr
 
 import json
 import ijson
@@ -531,7 +531,6 @@ def name_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     for d in sorted(data, key=lambda s: s["name"] or -1):
         name = d["name"]
         id = d["id"]
-        print(d)
         ret["feed"]["entry"].append(
             {
                 "updated": dtiso,
@@ -562,11 +561,14 @@ def get_randoms(num, maxrand: int):
 def read_data(idx, nums):
     ret = []
     num = 0
-    with open(idx, "rb") as f:
-        for k, d in ijson.kvitems(f, 'data'):
-            if num in nums:
-                ret.append(d)
-            num = num + 1
+    try:
+        with open(idx, "rb") as f:
+            for k, d in ijson.kvitems(f, 'data'):
+                if num in nums:
+                    ret.append(d)
+                num = num + 1
+    except Exception as e:
+        logging.error(e)
     return ret
 
 
@@ -608,73 +610,281 @@ def random_data(
     )
     cnt = 0
     cntf = workdir + cntfile
-    with open(cntf) as jsfile:
-        cnt = json.load(jsfile)
-    randoms = get_randoms(count - 1, cnt)
-    dataf = workdir + datafile
-    data = read_data(dataf, randoms)
-    if books:
-        for d in data:
-            book_title = d["book_title"]
-            book_id = d["book_id"]
-            lang = d["lang"]
-            annotation = d["annotation"]
-            size = int(d["size"])
-            date_time = d["date_time"]
-            zipfile = d["zipfile"]
-            filename = d["filename"]
+    try:
+        with open(cntf) as jsfile:
+            cnt = json.load(jsfile)
+        randoms = get_randoms(count - 1, cnt)
+        dataf = workdir + datafile
+        data = read_data(dataf, randoms)
+        if books:
+            for d in data:
+                book_title = d["book_title"]
+                book_id = d["book_id"]
+                lang = d["lang"]
+                annotation = d["annotation"]
+                size = int(d["size"])
+                date_time = d["date_time"]
+                zipfile = d["zipfile"]
+                filename = d["filename"]
 
-            authors = []
-            links = []
-            category = []
-            for author in d["authors"]:
-                authors.append(
+                authors = []
+                links = []
+                category = []
+                for author in d["authors"]:
+                    authors.append(
+                        {
+                            "uri": approot + authref + id2path(author["id"]),
+                            "name": author["name"]
+                        }
+                    )
+                    links.append(
+                        {
+                            "@href": approot + authref + id2path(author["id"]),
+                            "@rel": "related",
+                            "@title": author["name"],
+                            "@type": "application/atom+xml"
+                        }
+                    )
+
+                if d["sequences"] is not None:
+                    for seq in d["sequences"]:
+                        links.append(get_seq_link(approot, seqref, id2path(seq["id"]), seq["name"]))
+
+                links.append(get_book_link(approot, zipfile, filename, 'dl'))
+                links.append(get_book_link(approot, zipfile, filename, 'read'))
+
+                annotext = """
+                <p class=\"book\"> %s </p>\n<br/>формат: fb2<br/>
+                размер: %s<br/>
+                """ % (annotation, sizeof_fmt(size))
+                ret["feed"]["entry"].append(
+                    get_book_entry(date_time, book_id, book_title, authors, links, category, lang, annotext)
+                )
+        else:
+            for d in data:
+                name = d["name"]
+                id = d["id"]
+                cnt = d["cnt"]
+                ret["feed"]["entry"].append(
                     {
-                        "uri": approot + authref + id2path(author["id"]),
-                        "name": author["name"]
+                        "updated": dtiso,
+                        "id": subtag + urllib.parse.quote(id),
+                        "title": name,
+                        "content": {
+                            "@type": "text",
+                            "#text": str(cnt) + " книг(и) в серии"
+                        },
+                        "link": {
+                            "@href": approot + seqref + urllib.parse.quote(id2path(id)),
+                            "@type": "application/atom+xml;profile=opds-catalog"
+                        }
                     }
                 )
-                links.append(
-                    {
-                        "@href": approot + authref + id2path(author["id"]),
-                        "@rel": "related",
-                        "@title": author["name"],
-                        "@type": "application/atom+xml"
-                    }
-                )
+    except Exception as e:
+        logging.error(e)
+    return ret
 
-            if d["sequences"] is not None:
-                for seq in d["sequences"]:
-                    links.append(get_seq_link(approot, seqref, id2path(seq["id"]), seq["name"]))
 
-            links.append(get_book_link(approot, zipfile, filename, 'dl'))
-            links.append(get_book_link(approot, zipfile, filename, 'read'))
-
-            annotext = """
-            <p class=\"book\"> %s </p>\n<br/>формат: fb2<br/>
-            размер: %s<br/>
-            """ % (annotation, sizeof_fmt(size))
-            ret["feed"]["entry"].append(
-                get_book_entry(date_time, book_id, book_title, authors, links, category, lang, annotext)
-            )
+def search_main(s_term, tag, title, baseref, self, upref):
+    dtiso = get_dtiso()
+    approot = current_app.config['APPLICATION_ROOT']
+    ret = ret_hdr()
+    ret["feed"]["updated"] = dtiso
+    ret["feed"]["title"] = title
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + self,
+            "@rel": "self",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + upref,
+            "@rel": "up",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+    if s_term is None:
+        ret["feed"]["id"] = tag
     else:
+        ret["feed"]["id"] = tag + urllib.parse.quote_plus(s_term)
+        ret["feed"]["entry"].append(
+          {
+            "updated": dtiso,
+            "id": "tag:search:authors::",
+            "title": "Поиск в именах авторов",
+            "content": {
+              "@type": "text",
+              "#text": "Поиск в именах авторов"
+            },
+            "link": {
+              "@href": approot + baseref + "search-authors?searchTerm=%s" % url_str(s_term),
+              "@type": "application/atom+xml;profile=opds-catalog"
+            }
+          }
+        )
+        ret["feed"]["entry"].append(
+          {
+            "updated": dtiso,
+            "id": "tag:search:sequences::",
+            "title": "Поиск в сериях",
+            "content": {
+              "@type": "text",
+              "#text": "Поиск в сериях"
+            },
+            "link": {
+              "@href": approot + baseref + "search-sequences?searchTerm=%s" % url_str(s_term),
+              "@type": "application/atom+xml;profile=opds-catalog"
+            }
+          }
+        )
+        ret["feed"]["entry"].append(
+          {
+            "updated": dtiso,
+            "id": "tag:search:booktitles::",
+            "title": "Поиск в названиях книг",
+            "content": {
+              "@type": "text",
+              "#text": "Поиск в названиях книг"
+            },
+            "link": {
+              "@href": approot + baseref + "search-books?searchTerm=%s" % url_str(s_term),
+              "@type": "application/atom+xml;profile=opds-catalog"
+            }
+          }
+        )
+    return ret
+
+
+# restype = (auth|seq|book)
+def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
+    dtiso = get_dtiso()
+    approot = current_app.config['APPLICATION_ROOT']
+    ret = ret_hdr()
+    ret["feed"]["updated"] = dtiso
+    ret["feed"]["title"] = title
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + self,
+            "@rel": "self",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + upref,
+            "@rel": "up",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+    if s_term is None:
+        ret["feed"]["id"] = tag
+    else:
+        ret["feed"]["id"] = tag + urllib.parse.quote_plus(s_term)
+        data = []
+        try:
+            rootdir = current_app.config['STATIC']
+            maxres = current_app.config['MAX_SEARCH_RES']
+            workdir = rootdir + "/"
+            i = 0
+            with open(workdir + idx, "rb") as f:
+                for k, d in ijson.kvitems(f, 'data'):
+                    if restype == "auth" or restype == "seq":
+                        if is_substr(s_term, d["name"]):
+                            data.append(d)
+                            i = i + 1
+                    elif restype == "book":
+                        if is_substr(s_term, d["book_title"]):
+                            data.append(d)
+                            i = i + 1
+                    if i >= maxres:
+                        break
+            if restype == "auth" or restype == "seq":
+                data = sorted(data, key=lambda s: s["name"] or -1)
+            elif restype == "book":
+                data = sorted(data, key=lambda s: s["book_title"] or -1)
+        except Exception as e:
+            logging.error(e)
         for d in data:
-            name = d["name"]
-            id = d["id"]
-            cnt = d["cnt"]
-            ret["feed"]["entry"].append(
-                {
-                    "updated": dtiso,
-                    "id": subtag + urllib.parse.quote(id),
-                    "title": name,
-                    "content": {
-                        "@type": "text",
-                        "#text": str(cnt) + " книг(и) в серии"
-                    },
-                    "link": {
-                        "@href": approot + seqref + urllib.parse.quote(id2path(id)),
-                        "@type": "application/atom+xml;profile=opds-catalog"
+            if restype == "auth":
+                name = d["name"]
+                id = d["id"]
+                ret["feed"]["entry"].append(
+                    {
+                        "updated": dtiso,
+                        "id": subtag + urllib.parse.quote(id),
+                        "title": name,
+                        "content": {
+                            "@type": "text",
+                            "#text": name
+                        },
+                        "link": {
+                            "@href": approot + baseref + id2path(id),
+                            "@type": "application/atom+xml;profile=opds-catalog"
+                        }
                     }
-                }
-            )
+                )
+            elif restype == "seq":
+                name = d["name"]
+                id = d["id"]
+                cnt = d["cnt"]
+                ret["feed"]["entry"].append(
+                    {
+                        "updated": dtiso,
+                        "id": subtag + urllib.parse.quote(id),
+                        "title": name,
+                        "content": {
+                            "@type": "text",
+                            "#text": str(cnt) + " книг(и) в серии"
+                        },
+                        "link": {
+                            "@href": approot + baseref + urllib.parse.quote(id2path(id)),
+                            "@type": "application/atom+xml;profile=opds-catalog"
+                        }
+                    }
+                )
+            elif restype == "book":
+                book_title = d["book_title"]
+                book_id = d["book_id"]
+                lang = d["lang"]
+                annotation = d["annotation"]
+                size = int(d["size"])
+                date_time = d["date_time"]
+                zipfile = d["zipfile"]
+                filename = d["filename"]
+
+                authors = []
+                links = []
+                category = []
+                for author in d["authors"]:
+                    authors.append(
+                        {
+                            "uri": approot + baseref + id2path(author["id"]),
+                            "name": author["name"]
+                        }
+                    )
+                    links.append(
+                        {
+                            "@href": approot + baseref + id2path(author["id"]),
+                            "@rel": "related",
+                            "@title": author["name"],
+                            "@type": "application/atom+xml"
+                        }
+                    )
+
+                if d["sequences"] is not None:
+                    for seq in d["sequences"]:
+                        links.append(get_seq_link(approot, baseref, id2path(seq["id"]), seq["name"]))
+
+                links.append(get_book_link(approot, zipfile, filename, 'dl'))
+                links.append(get_book_link(approot, zipfile, filename, 'read'))
+
+                annotext = """
+                <p class=\"book\"> %s </p>\n<br/>формат: fb2<br/>
+                размер: %s<br/>
+                """ % (annotation, sizeof_fmt(size))
+                ret["feed"]["entry"].append(
+                    get_book_entry(date_time, book_id, book_title, authors, links, category, lang, annotext)
+                )
     return ret
