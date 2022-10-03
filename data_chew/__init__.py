@@ -287,8 +287,12 @@ def make_authors(pagesdir):
                         auth_data[auth_id] = s
     with open(pagesdir + "/allbooks.json", 'w') as idx:
         json.dump({"data": book_idx}, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allauthors.json", 'w') as idx:
+        json.dump({"data": auth_idx}, idx, indent=2, ensure_ascii=False)
     with open(pagesdir + "/allbookscnt.json", 'w') as idx:
         json.dump(len(allbookids), idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allauthorcnt.json", 'w') as idx:
+        json.dump(len(auth_names), idx, indent=2, ensure_ascii=False)
     for auth in auth_names:
         name = auth_names[auth]
         first = unicode_upper(name[:1])

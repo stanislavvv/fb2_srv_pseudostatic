@@ -403,3 +403,5 @@ def html_random_seqs():
     link = data['feed']['link']
     page = render_template('opds_author_sequence.html', title=title, updated=updated, link=link, entry=entry)
     return Response(page, mimetype='text/html')
+
+
