@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from pathlib import Path
 
-from .strings import get_genres, get_genres_meta, get_genres_replace, genres
+from .strings import get_genres, get_genres_meta, get_genres_replace, genres, unicode_upper
 from .strings import genres_replace, check_genres, id2path, get_genre_meta, get_meta_name
 
 from .data import get_genre, get_author_struct
@@ -270,26 +270,27 @@ def make_authors(pagesdir):
         allbooks.append(bdata)
         if bdata["authors"] is not None:
             for auth in bdata["authors"]:
-                auth_id = auth["id"]
-                auth_name = auth["name"]
-                auth_names[auth_id] = auth_name
-                if auth_id not in auth_idx:
-                    s = {"name": auth_name, "id": auth_id}
-                    auth_idx[auth_id] = s
-                if auth_id in auth_data:
-                    s = auth_data[auth_id]
-                    s.append(bdata)
-                    auth_data[auth_id] = s
-                else:
-                    s = []
-                    s.append(bdata)
-                    auth_data[auth_id] = s
+                auth_id = auth.get("id")
+                if auth_id is not None:
+                    auth_name = auth["name"]
+                    auth_names[auth_id] = auth_name
+                    if auth_id not in auth_idx:
+                        s = {"name": auth_name, "id": auth_id}
+                        auth_idx[auth_id] = s
+                    if auth_id in auth_data:
+                        s = auth_data[auth_id]
+                        s.append(bdata)
+                        auth_data[auth_id] = s
+                    else:
+                        s = []
+                        s.append(bdata)
+                        auth_data[auth_id] = s
     with open(pagesdir + "/allbooks.json", 'w') as idx:
         json.dump(allbooks, idx, indent=2, ensure_ascii=False)
     for auth in auth_names:
         name = auth_names[auth]
-        first = name[:1]
-        three = name[:3]
+        first = unicode_upper(name[:1])
+        three = unicode_upper(name[:3])
         auth_root[first] = 1
         if first in auth_subroot:
             s = auth_subroot[first]
@@ -388,8 +389,8 @@ def make_sequences(pagesdir):
     for seq in seq_names:
         allseqs.append(seq_idx[seq])
         name = seq_names[seq]
-        first = name[:1]
-        three = name[:3]
+        first = unicode_upper(name[:1])
+        three = unicode_upper(name[:3])
         seq_root[first] = 1
         if first in seq_subroot:
             s = seq_subroot[first]

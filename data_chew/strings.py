@@ -2,7 +2,7 @@
 
 import codecs
 import logging
-
+import unicodedata as ud
 
 # genres meta
 genres_meta = {}
@@ -19,6 +19,16 @@ def strnull(s):
     if s is None:
         return ""
     return str(s)
+
+
+# custom UPPER + normalize for sqlite
+def unicode_upper(s: str):
+    ret = ud.normalize('NFKD', s)
+    ret = ret.upper()
+    ret = ret.replace('Ё', 'Е')
+    ret = ret.replace('Й', 'И')
+    ret = ret.replace('Ъ', 'Ь')
+    return ret
 
 
 # return string or first element of list
