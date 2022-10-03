@@ -520,7 +520,7 @@ def process_lists(zipdir, pagesdir):
 
     i = 0
     for booklist in glob.glob(zipdir + '/*.zip.list'):
-        logging.info("[" + str(i) + "] ")
+        logging.info("[" + str(i) + "] " + booklist)
         process_list(booklist)
         i = i + 1
     make_sequences(pagesdir)
