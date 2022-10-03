@@ -363,8 +363,7 @@ def make_sequences(pagesdir):
         bdata = book_idx[book]
         if bdata["sequences"] is not None:
             for seq in bdata["sequences"]:
-                seq_name = seq["name"]
-                if seq_name is not None and seq_name != "":
+                if "seq_id" in seq:
                     seq_id = seq["id"]
                     seq_name = seq["name"]
                     seq_names[seq_id] = seq_name
@@ -512,7 +511,7 @@ def make_genres(pagesdir):
 
 
 def process_lists(zipdir, pagesdir):
-    logging.info("Prerocessing lists...")
+    logging.info("Preprocessing lists...")
     get_genres_meta()
     get_genres()  # official genres from genres.list
     get_genres_replace()  # replacement for unofficial genres from genres_replace.list
