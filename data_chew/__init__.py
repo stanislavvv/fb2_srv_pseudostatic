@@ -363,8 +363,8 @@ def make_sequences(pagesdir):
         bdata = book_idx[book]
         if bdata["sequences"] is not None:
             for seq in bdata["sequences"]:
-                if "seq_id" in seq:
-                    seq_id = seq["id"]
+                seq_id = seq.get("id")
+                if seq_id is not None:
                     seq_name = seq["name"]
                     seq_names[seq_id] = seq_name
                     if seq_id in seq_idx:
