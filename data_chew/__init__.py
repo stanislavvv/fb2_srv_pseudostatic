@@ -264,8 +264,10 @@ def make_authors(pagesdir):
     auth_root = {}
     auth_subroot = {}
     auth_data = {}
+    allbooks = []
     for book in book_idx:
         bdata = book_idx[book]
+        allbooks.append(bdata)
         if bdata["authors"] is not None:
             for auth in bdata["authors"]:
                 auth_id = auth["id"]
@@ -282,6 +284,8 @@ def make_authors(pagesdir):
                     s = []
                     s.append(bdata)
                     auth_data[auth_id] = s
+    with open(pagesdir + "/allbooks.json", 'w') as idx:
+        json.dump(allbooks, idx, indent=2, ensure_ascii=False)
     for auth in auth_names:
         name = auth_names[auth]
         first = name[:1]
@@ -379,7 +383,9 @@ def make_sequences(pagesdir):
                     s = []
                     s.append(bdata)
                     seq_data[seq_id] = s
+    allseqs = []
     for seq in seq_names:
+        allseqs.append(seq_idx[seq])
         name = seq_names[seq]
         first = name[:1]
         three = name[:3]
@@ -404,6 +410,8 @@ def make_sequences(pagesdir):
             json.dump(data, idx, indent=2, ensure_ascii=False)
         with open(workpath + "/name.json", 'w') as idx:
             json.dump(name, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allsequences.json", 'w') as idx:
+        json.dump(allseqs, idx, indent=2, ensure_ascii=False)
     for first in sorted(seq_root.keys()):
         workpath = pagesdir + seq_base + first
         Path(workpath).mkdir(parents=True, exist_ok=True)
