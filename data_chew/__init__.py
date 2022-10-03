@@ -432,6 +432,7 @@ def make_sequences(pagesdir):
             with open(wpath + "/index.json", 'w') as idx:
                 json.dump(out, idx, indent=2, ensure_ascii=False)
     workpath = pagesdir + seq_base
+    Path(workpath).mkdir(parents=True, exist_ok=True)
     data = []
     for s in seq_root:
         data.append(s)
