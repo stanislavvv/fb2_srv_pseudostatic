@@ -288,9 +288,9 @@ def make_authors(pagesdir):
                         s.append(bdata)
                         auth_data[auth_id] = s
     with open(pagesdir + "/allbooks.json", 'w') as idx:
-        json.dump(allbooks, idx, indent=2, ensure_ascii=False)
-    with open(pagesdir + "/allbooksids.json", 'w') as idx:
-        json.dump(allbookids, idx, indent=2, ensure_ascii=False)
+        json.dump({"data": book_idx}, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allbookscnt.json", 'w') as idx:
+        json.dump(len(allbookids), idx, indent=2, ensure_ascii=False)
     for auth in auth_names:
         name = auth_names[auth]
         first = unicode_upper(name[:1])
@@ -419,9 +419,9 @@ def make_sequences(pagesdir):
         with open(workpath + "/name.json", 'w') as idx:
             json.dump(name, idx, indent=2, ensure_ascii=False)
     with open(pagesdir + "/allsequences.json", 'w') as idx:
-        json.dump(allseqs, idx, indent=2, ensure_ascii=False)
-    with open(pagesdir + "/allsequenceids.json", 'w') as idx:
-        json.dump(allseqids, idx, indent=2, ensure_ascii=False)
+        json.dump({"data": seq_idx}, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allsequencecnt.json", 'w') as idx:
+        json.dump(len(allseqids), idx, indent=2, ensure_ascii=False)
     for first in sorted(seq_root.keys()):
         workpath = pagesdir + seq_base + first
         Path(workpath).mkdir(parents=True, exist_ok=True)

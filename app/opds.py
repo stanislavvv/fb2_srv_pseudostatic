@@ -2,12 +2,14 @@
 
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
-from .internals import get_book_link, url_str
+from .internals import get_book_link
 
 import json
+import ijson
 import logging
 import urllib
 import os
+import random
 
 
 def ret_hdr():  # python does not have constants
@@ -132,7 +134,7 @@ def seq_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data, key = lambda s: s["name"] or -1):
+    for d in sorted(data, key=lambda s: s["name"] or -1):
         name = d["name"]
         id = d["id"]
         cnt = d["cnt"]
@@ -188,7 +190,7 @@ def auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data, key = lambda s: s["name"] or -1):
+    for d in sorted(data, key=lambda s: s["name"] or -1):
         name = d["name"]
         id = d["id"]
         ret["feed"]["entry"].append(
@@ -456,7 +458,7 @@ def author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, 
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data, key = lambda s: s["name"] or -1):
+    for d in sorted(data, key=lambda s: s["name"] or -1):
         name = d["name"]
         id = d["id"]
         cnt = d["cnt"]
@@ -526,7 +528,7 @@ def name_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data, key = lambda s: s["name"] or -1):
+    for d in sorted(data, key=lambda s: s["name"] or -1):
         name = d["name"]
         id = d["id"]
         print(d)
@@ -545,4 +547,134 @@ def name_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
                 }
             }
         )
+    return ret
+
+
+def get_randoms(num, maxrand: int):
+    ret = []
+    random.seed()
+    for i in range(1, num):
+        ret.append(random.randint(0, maxrand))
+    return ret
+
+
+# read items with num in nums
+def read_data(idx, nums):
+    ret = []
+    num = 0
+    with open(idx, "rb") as f:
+        for k, d in ijson.kvitems(f, 'data'):
+            if num in nums:
+                ret.append(d)
+            num = num + 1
+    return ret
+
+
+def random_data(
+            datafile,
+            cntfile,
+            tag,
+            title,
+            baseref,
+            self,
+            upref,
+            authref,
+            seqref,
+            subtag,
+            books
+        ):
+    dtiso = get_dtiso()
+    approot = current_app.config['APPLICATION_ROOT']
+    rootdir = current_app.config['STATIC']
+    count = current_app.config['PAGE_SIZE']
+    workdir = rootdir + "/"
+    ret = ret_hdr()
+    ret["feed"]["updated"] = dtiso
+    ret["feed"]["title"] = title
+    ret["feed"]["id"] = tag
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + self,
+            "@rel": "self",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + upref,
+            "@rel": "up",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+    cnt = 0
+    cntf = workdir + cntfile
+    with open(cntf) as jsfile:
+        cnt = json.load(jsfile)
+    randoms = get_randoms(count - 1, cnt)
+    dataf = workdir + datafile
+    data = read_data(dataf, randoms)
+    if books:
+        for d in data:
+            book_title = d["book_title"]
+            book_id = d["book_id"]
+            lang = d["lang"]
+            annotation = d["annotation"]
+            size = int(d["size"])
+            date_time = d["date_time"]
+            zipfile = d["zipfile"]
+            filename = d["filename"]
+
+            authors = []
+            links = []
+            category = []
+            for author in d["authors"]:
+                authors.append(
+                    {
+                        "uri": approot + authref + id2path(author["id"]),
+                        "name": author["name"]
+                    }
+                )
+                links.append(
+                    {
+                        "@href": approot + authref + id2path(author["id"]),
+                        "@rel": "related",
+                        "@title": author["name"],
+                        "@type": "application/atom+xml"
+                    }
+                )
+
+            if d["sequences"] is not None:
+                for seq in d["sequences"]:
+                    links.append(get_seq_link(approot, seqref, id2path(seq["id"]), seq["name"]))
+
+            links.append(get_book_link(approot, zipfile, filename, 'dl'))
+            links.append(get_book_link(approot, zipfile, filename, 'read'))
+
+            annotext = """
+            <p class=\"book\"> %s </p>\n<br/>формат: fb2<br/>
+            размер: %s<br/>
+            """ % (annotation, sizeof_fmt(size))
+            ret["feed"]["entry"].append(
+                get_book_entry(date_time, book_id, book_title, authors, links, category, lang, annotext)
+            )
+    else:
+        for d in data:
+            name = d["name"]
+            id = d["id"]
+            cnt = d["cnt"]
+            ret["feed"]["entry"].append(
+                {
+                    "updated": dtiso,
+                    "id": subtag + urllib.parse.quote(id),
+                    "title": name,
+                    "content": {
+                        "@type": "text",
+                        "#text": str(cnt) + " книг(и) в серии"
+                    },
+                    "link": {
+                        "@href": approot + seqref + urllib.parse.quote(id2path(id)),
+                        "@type": "application/atom+xml;profile=opds-catalog"
+                    }
+                }
+            )
     return ret

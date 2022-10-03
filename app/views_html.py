@@ -2,7 +2,7 @@
 
 from flask import Blueprint, Response, render_template
 from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main_author
-from .opds import author_seqs, get_main_name, name_list
+from .opds import author_seqs, get_main_name, name_list, random_data
 from .validate import validate_prefix, validate_id, validate_genre_meta, validate_genre
 from .internals import id2path
 
@@ -346,4 +346,70 @@ def html_genre(id):
     entry = data['feed']['entry']
     link = data['feed']['link']
     page = render_template('opds_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+@html.route("/html/random-books/", methods=['GET'])
+def html_random_books():
+    baseref = ""  # not for books
+    self = "/html/random-books/"
+    upref = "/html/"
+    tag = "tag:search:books:random:"
+    title = "Поиск случайных книг"
+    authref = "/html/author/"
+    seqref = "/html/sequence/"
+    datafile = "allbooks.json"
+    cntfile = "allbookscnt.json"
+    subtag = ""  # not for books
+    data = random_data(
+                datafile,
+                cntfile,
+                tag,
+                title,
+                baseref,
+                self,
+                upref,
+                authref,
+                seqref,
+                subtag,
+                True)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    return Response(page, mimetype='text/html')
+
+
+
+
+@html.route("/html/random-sequences/", methods=['GET'])
+def html_random_seqs():
+    baseref = "/html/"
+    self = "/html/random-sequences/"
+    upref = "/html/"
+    tag = "tag:search:sequences:random:"
+    title = "Поиск случайных серий"
+    authref = "/html/author/"
+    seqref = "/html/sequence/"
+    datafile = "allsequences.json"
+    cntfile = "allsequencecnt.json"
+    subtag = "tag:sequence:"
+    data = random_data(
+                datafile,
+                cntfile,
+                tag,
+                title,
+                baseref,
+                self,
+                upref,
+                authref,
+                seqref,
+                subtag,
+                False)
+    title = data['feed']['title']
+    updated = data['feed']['updated']
+    entry = data['feed']['entry']
+    link = data['feed']['link']
+    page = render_template('opds_author_sequence.html', title=title, updated=updated, link=link, entry=entry)
     return Response(page, mimetype='text/html')
