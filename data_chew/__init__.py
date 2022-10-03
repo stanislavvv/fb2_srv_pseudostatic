@@ -3,7 +3,6 @@
 import os
 import zipfile
 import xmltodict
-# import sqlite3
 import json
 import logging
 import glob
@@ -13,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .strings import get_genres, get_genres_meta, get_genres_replace, genres, unicode_upper
-from .strings import genres_replace, check_genres, id2path, get_genre_meta, get_meta_name
+from .strings import genres_replace, id2path, get_genre_meta, get_meta_name
 
 from .data import get_genre, get_author_struct
 from .data import get_sequence, get_lang
@@ -253,6 +252,7 @@ def process_list(booklist):
         data = json.load(lst)
     for book in data:
         book_id = book["book_id"]
+        book["genres"] = genres_replace(book["genres"])
         book_idx[book_id] = book
 
 

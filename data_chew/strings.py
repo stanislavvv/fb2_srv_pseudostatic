@@ -121,26 +121,25 @@ def get_genres_replace():
 # print unknown genres
 def check_genres(zipfile, filename, genrs):
     global genres
-    gg = genrs.split('|')
-    for i in gg:
+    for i in genrs:
         if i not in genres and i != "":
-            logging.warning("unknown genre in " + zipfile + "/" + filename + " :" + i)  # ToDo: write to file
+            logging.warning("unknown genre in " + zipfile + "/" + filename + " : " + i)
 
 
 def genres_replace(genrs):
     global genres_replacements
-    gg = genrs.split("|")
     ret = []
-    for i in gg:
+    for i in genrs:
         if i not in genres and i != "":
             if i in genres_replacements:
                 if genres_replacements[i] is not None and genres_replacements[i] != "":
                     ret.append(genres_replacements[i])
             else:
+                logging.warning("unknown genre '" + i + "' replaced to 'other'")
                 ret.append('other')
         else:
             ret.append(i)
-    return "|".join(ret)
+    return ret
 
 
 def get_genre_name(gen_id):
