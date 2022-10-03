@@ -390,8 +390,10 @@ def make_sequences(pagesdir):
                         s.append(bdata)
                         seq_data[seq_id] = s
     allseqs = []
+    allseqids = []
     for seq in seq_names:
         allseqs.append(seq_idx[seq])
+        allseqids.append(seq)
         name = seq_names[seq]
         first = unicode_upper(name[:1])
         three = unicode_upper(name[:3])
@@ -418,6 +420,8 @@ def make_sequences(pagesdir):
             json.dump(name, idx, indent=2, ensure_ascii=False)
     with open(pagesdir + "/allsequences.json", 'w') as idx:
         json.dump(allseqs, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allsequenceids.json", 'w') as idx:
+        json.dump(allseqids, idx, indent=2, ensure_ascii=False)
     for first in sorted(seq_root.keys()):
         workpath = pagesdir + seq_base + first
         Path(workpath).mkdir(parents=True, exist_ok=True)
