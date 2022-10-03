@@ -523,6 +523,9 @@ def process_lists(zipdir, pagesdir):
         logging.info("[" + str(i) + "] " + booklist)
         process_list(booklist)
         i = i + 1
+    logging.info("Make sequences index...")
     make_sequences(pagesdir)
+    logging.info("Make authors index...")
     make_authors(pagesdir)
+    logging.info("Make genres index...")
     make_genres(pagesdir)
