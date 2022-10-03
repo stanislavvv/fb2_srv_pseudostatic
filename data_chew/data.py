@@ -301,8 +301,8 @@ def seq_from_data(seq_id, data):
     for book in data:
         if book["sequences"] is not None:
             for seq in book["sequences"]:
-                id = seq["id"]
-                if seq_id == id:
+                id = seq.get("id")
+                if seq_id is not None and seq_id == id:
                     ret.append(book)
     return ret
 
