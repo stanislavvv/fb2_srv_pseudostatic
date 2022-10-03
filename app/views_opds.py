@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from flask import Blueprint, Response
-from .opds import main_opds, str_list, books_list, seq_cnt_list, auth_list, main_author
-from .opds import author_seqs, get_main_name
-from .validate import validate_prefix, validate_id
+from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main_author
+from .opds import author_seqs, get_main_name, name_list
+from .validate import validate_prefix, validate_id, validate_genre_meta, validate_genre
 from .internals import id2path
 
 import xmltodict
@@ -238,5 +238,54 @@ def opds_author_time(sub1, sub2, id):
     authref = "/opds/author/"
     seqref = "/opds/sequence/"
     data = books_list(idx, tag, title, self, upref, authref, seqref, None, True)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/genresindex", methods=['GET'])
+@opds.route("/opds/genresindex/", methods=['GET'])
+def opds_gen_root():
+    idx = "genresindex"
+    self = "/opds/genresindex/"
+    baseref = self
+    upref = "/opds/"
+    tag = "tag:root:genres"
+    title = "Группы жанров"
+    subtag = "tag:genres:"
+    subtitle = "Книги на "
+    data = name_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/genresindex/<sub>", methods=['GET'])
+def opds_gen_meta(sub):
+    sub = validate_genre_meta(sub)
+    data = []
+    idx = "genresindex/" + sub
+    self = "/opds/genresindex/" + sub
+    baseref = "/opds/genre/"
+    upref = "/opds/genresindex/"
+    tag = "tag:genres:" + sub
+    title = "Жанры"
+    subtag = "tag:genres:"
+    subtitle = "Книги на "
+    data = name_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/genre/<id>", methods=['GET'])
+def opds_genre(id):
+    id = validate_genre(id)
+    idx = "genre/%s" % (id)
+    baseref = ""
+    self = "/opds/" + idx
+    upref = "/opds/"
+    tag = "tag:root:genre:" + id
+    title = "Серия "
+    authref = "/opds/author/"
+    seqref = "/opds/sequence/"
+    data = books_list(idx, tag, title, self, upref, authref, seqref, id)
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')

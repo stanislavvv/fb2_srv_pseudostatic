@@ -302,7 +302,9 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
                 links.append(get_seq_link(approot, seqref, id2path(seq["id"]), seq["name"]))
                 if seq_id is not None:
                     seq_name = seq["name"]
-                    seq_num = seq["num"]
+                    seq_num = seq.get("num")
+                    if seq_num is None:
+                        seq_num = "0"
 
         links.append(get_book_link(approot, zipfile, filename, 'dl'))
         links.append(get_book_link(approot, zipfile, filename, 'read'))

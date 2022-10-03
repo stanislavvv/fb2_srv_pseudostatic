@@ -265,9 +265,11 @@ def make_authors(pagesdir):
     auth_subroot = {}
     auth_data = {}
     allbooks = []
+    allbookids = []
     for book in book_idx:
         bdata = book_idx[book]
         allbooks.append(bdata)
+        allbookids.append(book)
         if bdata["authors"] is not None:
             for auth in bdata["authors"]:
                 auth_id = auth.get("id")
@@ -287,6 +289,8 @@ def make_authors(pagesdir):
                         auth_data[auth_id] = s
     with open(pagesdir + "/allbooks.json", 'w') as idx:
         json.dump(allbooks, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allbooksids.json", 'w') as idx:
+        json.dump(allbookids, idx, indent=2, ensure_ascii=False)
     for auth in auth_names:
         name = auth_names[auth]
         first = unicode_upper(name[:1])
