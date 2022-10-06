@@ -33,7 +33,6 @@ def opds_seq_root():
     subtag = "tag:sequences:"
     subtitle = "Книги на "
     data = str_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
-    print(data)
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')
 

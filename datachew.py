@@ -60,7 +60,7 @@ def new_lists():
 def fromlists(stage):
     zipdir = app.config['ZIPS']
     pagesdir = app.config['STATIC']
-    make_root(pagesdir)
+    # make_root(pagesdir)
     process_lists(zipdir, pagesdir, stage)
 
 

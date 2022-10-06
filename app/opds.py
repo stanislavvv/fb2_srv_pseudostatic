@@ -41,14 +41,116 @@ def ret_hdr():  # python does not have constants
 
 
 def main_opds():
-    rootdir = current_app.config['STATIC']
-    try:
-        with open(rootdir + "/index.json") as jsfile:
-            data = json.load(jsfile)
-        return data
-    except Exception as e:
-        logging.error(e)
-        return None
+    approot = current_app.config['APPLICATION_ROOT']
+    dtiso = get_dtiso()
+
+    # start data
+    data = """
+    {
+      "feed": {
+        "@xmlns": "http://www.w3.org/2005/Atom",
+        "@xmlns:dc": "http://purl.org/dc/terms/",
+        "@xmlns:os": "http://a9.com/-/spec/opensearch/1.1/",
+        "@xmlns:opds": "http://opds-spec.org/2010/catalog",
+        "id": "tag:root",
+        "title": "Home opds directory",
+        "updated": "%s",
+        "icon": "/favicon.ico",
+        "link": [
+          {
+            "@href": "%s/opds/search?searchTerm={searchTerms}",
+            "@rel": "search",
+            "@type": "application/atom+xml"
+          },
+          {
+            "@href": "%s/opds/",
+            "@rel": "start",
+            "@type": "application/atom+xml;profile=opds-catalog"
+          },
+          {
+            "@href": "%s/opds/",
+            "@rel": "self",
+            "@type": "application/atom+xml;profile=opds-catalog"
+          }
+        ],
+        "entry": [
+          {
+            "updated": "%s",
+            "id": "tag:root:authors",
+            "title": "По авторам",
+            "content": {
+              "@type": "text",
+              "#text": "По авторам"
+            },
+            "link": {
+              "@href": "%s/opds/authorsindex/",
+              "@type": "application/atom+xml;profile=opds-catalog"
+            }
+          },
+          {
+            "updated": "%s",
+            "id": "tag:root:sequences",
+            "title": "По сериям",
+            "content": {
+              "@type": "text",
+              "#text": "По сериям"
+            },
+            "link": {
+              "@href": "%s/opds/sequencesindex/",
+              "@type": "application/atom+xml;profile=opds-catalog"
+            }
+          },
+          {
+            "updated": "%s",
+            "id": "tag:root:genre",
+            "title": "По жанрам",
+            "content": {
+              "@type": "text",
+              "#text": "По жанрам"
+            },
+            "link": {
+              "@href": "%s/opds/genresindex/",
+              "@type": "application/atom+xml;profile=opds-catalog"
+            }
+          },
+          {
+            "updated": "%s",
+            "id": "tag:root:random:books",
+            "title": "Случайные книги",
+            "content": {
+              "@type": "text",
+              "#text": "Случайные книги"
+            },
+            "link": {
+              "@href": "%s/opds/random-books/",
+              "@type": "application/atom+xml;profile=opds-catalog"
+            }
+          },
+          {
+            "updated": "%s",
+            "id": "tag:root:random:sequences",
+            "title": "Случайные серии",
+            "content": {
+              "@type": "text",
+              "#text": "Случайные серии"
+            },
+            "link": {
+              "@href": "%s/opds/random-sequences/",
+              "@type": "application/atom+xml;profile=opds-catalog"
+            }
+          }
+        ]
+      }
+    }
+    """ % (
+        dtiso, approot, approot, approot,
+        dtiso, approot,
+        dtiso, approot,
+        dtiso, approot,
+        dtiso, approot,
+        dtiso, approot
+    )
+    return json.loads(data)
 
 
 def str_list(idx, tag, title, baseref, self, upref, subtag, subtitle):

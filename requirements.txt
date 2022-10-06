@@ -1,0 +1,13 @@
+beautifulsoup4
+Flask
+Jinja2
+MarkupSafe
+lxml
+xmltodict
+zipp
+
+streamjson
+json-stream
+
+# remove later:
+ijson

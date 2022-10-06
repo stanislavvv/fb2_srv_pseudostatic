@@ -18,6 +18,7 @@ redir_all = "html.html_root"
 @html.route("/html/", methods=['GET'])
 def html_root():
     data = main_opds()
+    print(data)
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']

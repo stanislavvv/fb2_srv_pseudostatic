@@ -156,7 +156,7 @@ def fb2parse(z, filename, replace_data, inpx_data):
     date_time = fb2dt.strftime("%F_%H:%M")
     size = file_info.file_size
     if size < 1000:
-        return None
+        return None, None
     fb2 = z.open(filename)
     bs = BeautifulSoup(bytes(fb2.read(READ_SIZE)), 'xml')
     bs_descr = bs.FictionBook.description
@@ -173,7 +173,7 @@ def fb2parse(z, filename, replace_data, inpx_data):
         )
     if 'FictionBook' not in data:  # not fb2
         logging.error("not fb2: %s " % filename)
-        return None
+        return None, None
     fb2data = get_struct_by_key('FictionBook', data)  # data['FictionBook']
     descr = get_struct_by_key('description', fb2data)  # fb2data['description']
     info = get_struct_by_key('title-info', descr)  # descr['title-info']
@@ -221,23 +221,25 @@ def fb2parse(z, filename, replace_data, inpx_data):
         "size": str(size),
         "annotation": str(annotext.replace('\n', " ").replace('|', " "))
     }
-    return out
+    return book_id, out
 
 
 # iterate over files in zip, return array of book struct
 def ziplist(inpx_data, zip_file):
     logging.info(zip_file)
-    ret = []
+    #ret = []
+    ret = {}
     z = zipfile.ZipFile(zip_file)
     replace_data = get_replace_list(zip_file)
     inpx_data = get_inpx_meta(inpx_data, zip_file)
     for filename in z.namelist():
         if not os.path.isdir(filename):
             logging.debug(zip_file + "/" + filename + "             ")
-            res = fb2parse(z, filename, replace_data, inpx_data)
+            book_id, res = fb2parse(z, filename, replace_data, inpx_data)
             if res is not None:
-                ret.append(res)
-    return ret
+                #ret.append(res)
+                ret[book_id] = res
+    return {"data": ret}
 
 
 def make_root(pagesdir):
@@ -533,23 +535,28 @@ def make_genres(pagesdir):
         json.dump(data, idx, indent=2, ensure_ascii=False)
 
 
+def add2bookindex(fd, books):
+    return
+
 def process_lists(zipdir, pagesdir, stage):
     logging.info("Preprocessing lists...")
     get_genres_meta()
     get_genres()  # official genres from genres.list
     get_genres_replace()  # replacement for unofficial genres from genres_replace.list
 
+    bookindex = pagesdir + "/"
+
     i = 0
     for booklist in glob.glob(zipdir + '/*.zip.list'):
         logging.info("[" + str(i) + "] " + booklist)
         process_list(booklist)
         i = i + 1
-    if stage == "sequences":
-        logging.info("Make sequences index...")
-        make_sequences(pagesdir)
-    elif stage == "authors":
-        logging.info("Make authors index...")
-        make_authors(pagesdir)
-    elif stage == "genres":
-        logging.info("Make genres index...")
-        make_genres(pagesdir)
+    # if stage == "sequences":
+        # logging.info("Make sequences index...")
+        # make_sequences(pagesdir)
+    # elif stage == "authors":
+        # logging.info("Make authors index...")
+        # make_authors(pagesdir)
+    # elif stage == "genres":
+        # logging.info("Make genres index...")
+        # make_genres(pagesdir)

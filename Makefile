@@ -12,7 +12,10 @@ help:
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
+	rm -rf venv
 
 flakeall:
 	find . -name '*.py' -print0 | xargs -0 -n 100 flake8 $(FLAKE8_ARGS)
 
+venv:
+	./make_venv.sh
