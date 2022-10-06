@@ -7,3 +7,5 @@ __pycache__
 data
 LOG*
 logs
+app/config.py
+venv
