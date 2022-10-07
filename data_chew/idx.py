@@ -194,7 +194,6 @@ def make_auth_subindexes(zipdir, pagesdir):
 
 
 def make_seq_data(pagesdir):
-    seq_idx = {}
     seq_data = {}
     booksindex = pagesdir + "/allbooks.json"
     with open(booksindex) as f:
@@ -203,30 +202,20 @@ def make_seq_data(pagesdir):
             if book["sequences"] is not None:
                 for seq in book["sequences"]:
                     seq_id = seq.get("id")
-                    if seq_id is not None:
-                        seq_name = seq["name"]
-                        seq_names[seq_id] = seq_name
-                        if seq_id in seq_idx:
-                            s = seq_idx[seq_id]
-                            count = s["cnt"]
-                            count = count + 1
-                            s["cnt"] = count
-                            seq_idx[seq_id] = s
-                        else:
-                            s = {"name": seq_name, "id": seq_id, "cnt": 1}
-                            seq_idx[seq_id] = s
+                    seq_name = seq.get("name")
+                    if seq_id not in seq_processed:
                         if seq_id in seq_data:
-                            s = seq_data[seq_id]
-                            s.append(bdata)
-                            seq_data[seq_id] = s
-                        else:
-                            s = []
-                            s.append(bdata)
+                            s = seq_data[seq_id]["books"]
+                            s.append(book)
+                            seq_data[seq_id]["books"] = s
+                        elif len(seq_data) < MAX_PASS_LENGTH:
+                            s = {"name": seq_name, "id": seq_id}
+                            b = []
+                            b.append(book)
+                            s["books"] = b
                             seq_data[seq_id] = s
     for seq_id in seq_data:
         data = seq_data[seq_id]
-        data["sequences"] = seqs_in_data(seq_data[seq_id]["books"])
-        data["nonseq_book_ids"] = nonseq_from_data(seq_data[seq_id]["books"])
         workdir = pagesdir + "/sequences/" + id2pathonly(seq_id)
         workfile = pagesdir + "/sequences/" + id2path(seq_id) + ".json"
         Path(workdir).mkdir(parents=True, exist_ok=True)
