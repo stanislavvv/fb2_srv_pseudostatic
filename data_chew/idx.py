@@ -8,9 +8,11 @@ from pathlib import Path
 
 from .data import seqs_in_data, nonseq_from_data
 from .strings import get_genres, get_genres_meta, get_genres_replace, unicode_upper
-from .strings import genres_replace, id2path, id2pathonly
+from .strings import genres_replace, id2path, id2pathonly, genres, get_genre_meta
+from .strings import get_meta_name
 
 MAX_PASS_LENGTH = 1000
+MAX_PASS_LENGTH_GEN = 10
 
 book_idx = {}
 book_cnt = 0
@@ -20,6 +22,11 @@ seq_processed = {}
 auth_idx = {}
 auth_cnt = 0
 auth_processed = {}
+gen_idx = {}
+gen_names = {}
+gen_root = {}
+gen_cnt = 0
+gen_processed = {}
 
 
 def process_list_books(fd, booklist):
@@ -54,12 +61,31 @@ def process_list_books(fd, booklist):
                         auth_name = auth["name"]
                         s = {"name": auth_name, "id": auth_id}
                         auth_idx[auth_id] = s
+        if book["genres"] is not None:
+            for gen in book["genres"]:
+                gen_id = gen
+                gen_name = gen
+                if gen in genres:
+                    gen_name = genres[gen]["descr"]
+                gen_names[gen_id] = gen_name
+                if gen_id in gen_idx:
+                    s = gen_idx[gen_id]
+                    count = s["cnt"]
+                    count = count + 1
+                    s["cnt"] = count
+                    gen_idx[gen_id] = s
+                else:
+                    s = {"name": gen_name, "id": gen_id, "cnt": 1}
+                    gen_idx[gen_id] = s
+
 
 
 def make_global_indexes(zipdir, pagesdir):
     global seq_cnt
     global auth_cnt
-
+    global gen_cnt
+    global gen_root
+    
     logging.info("Preprocessing lists...")
     get_genres_meta()
     get_genres()  # official genres from genres.list
@@ -95,6 +121,22 @@ def make_global_indexes(zipdir, pagesdir):
             auth_cnt = auth_cnt + 1
     with open(pagesdir + "/allauthorcnt.json", 'w') as idx:
         json.dump(auth_cnt, idx, indent=2, ensure_ascii=False)
+    logging.info("Writing genres index...")
+    genindex = pagesdir + "/allgenres.json"
+    with open(genindex, "w") as fd:
+        for gen in gen_idx:
+            fd.write(json.dumps(gen_idx[gen], ensure_ascii=False))
+            fd.write("\n")
+            gen_cnt = gen_cnt + 1
+            name = gen_names[gen]
+            meta_id = get_genre_meta(gen)
+            if meta_id not in gen_root:
+                gen_root[meta_id] = []
+            gen_root[meta_id].append({"name": name, "id": gen})
+    with open(pagesdir + "/allgenrecnt.json", 'w') as idx:
+        json.dump(gen_cnt, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allgenresmeta.json", "w") as idx:
+        json.dump(gen_root, idx, indent=2, ensure_ascii=False)
 
 
 def make_auth_data(pagesdir):
@@ -118,6 +160,7 @@ def make_auth_data(pagesdir):
                             b.append(book)
                             s["books"] = b
                             auth_data[auth_id] = s
+
     for auth_id in auth_data:
         data = auth_data[auth_id]
         data["sequences"] = seqs_in_data(auth_data[auth_id]["books"])
@@ -135,17 +178,14 @@ def make_auth_subindexes(zipdir, pagesdir):
     auth_names = {}
     auth_root = {}
     auth_subroot = {}
-    booksindex = pagesdir + "/allbooks.json"
-    with open(booksindex) as f:
-        for b in f:
-            book = json.loads(b)
-            if book["authors"] is not None:
-                for auth in book["authors"]:
-                    auth_id = auth.get("id")
-                    auth_name = auth.get("name")
-                    if auth_id not in auth_processed:
-                        if auth_id not in auth_names:
-                            auth_names[auth_id] = auth_name
+    authindex = pagesdir + "/allauthors.json"
+    with open(authindex) as f:
+        for a in f:
+            auth = json.loads(a)
+            auth_id = auth.get("id")
+            auth_name = auth.get("name")
+            if auth_id not in auth_names:
+                auth_names[auth_id] = auth_name
     for auth in auth_names:
         name = auth_names[auth]
         first = unicode_upper(name[:1])
@@ -184,13 +224,14 @@ def make_auth_subindexes(zipdir, pagesdir):
                 out.append(auth)
             with open(wpath + "/index.json", 'w') as idx:
                 json.dump(out, idx, indent=2, ensure_ascii=False)
-    workpath = pagesdir + auth_base
-    data = []
-    for s in auth_root:
-        data.append(s)
     logging.debug(" - saving main authors index...")
-    with open(workpath + "/index.json", 'w') as idx:
-        json.dump(data, idx, indent=2, ensure_ascii=False)
+    workpath = pagesdir + auth_base
+    Path(workpath).mkdir(parents=True, exist_ok=True)
+    # data = []
+    # for s in auth_root:
+    #     data.append(s)
+    with open(workpath + "index.json", 'w') as idx:
+        json.dump(auth_root, idx, indent=2, ensure_ascii=False)
 
 
 def make_seq_data(pagesdir):
@@ -254,7 +295,7 @@ def make_seq_subindexes(zipdir, pagesdir):
             s[three] = []
             s[three].append(seq)
             seq_subroot[first] = s
-    logging.debug(" - partial names index tree...")
+    logging.debug(" - partial sequence names index tree...")
     for first in sorted(seq_root.keys()):
         workpath = pagesdir + seq_base + first
         Path(workpath).mkdir(parents=True, exist_ok=True)
@@ -281,3 +322,45 @@ def make_seq_subindexes(zipdir, pagesdir):
     logging.debug(" - saving main sequences index...")
     with open(workpath + "/index.json", 'w') as idx:
         json.dump(data, idx, indent=2, ensure_ascii=False)
+
+
+def make_gen_data(pagesdir):
+    global gen_idx
+    global gen_processed
+
+    gen_base = "/genresindex/"  # for genre indexes
+    gen_data_base = "/genre/"  # for genre data
+    gen_data = {}
+    gen_names = {}
+
+    workpath = pagesdir + gen_base
+    genpath_base = pagesdir + gen_data_base
+
+    booksindex = pagesdir + "/allbooks.json"
+    with open(booksindex) as f:
+        for b in f:
+            book = json.loads(b)
+            if book["genres"] is not None:
+                for gen in book["genres"]:
+                    gen_id = gen
+                    gen_name = gen
+                    if gen in genres:
+                        gen_name = genres[gen]["descr"]
+                    gen_names[gen_id] = gen_name
+                    if gen_id not in gen_processed:
+                        if gen_id in gen_data:
+                            s = gen_data[gen_id]
+                            s.append(book)
+                            gen_data[gen_id] = s
+                        elif len(gen_data) < MAX_PASS_LENGTH_GEN:
+                            s = []
+                            s.append(book)
+                            gen_data[gen_id] = s
+    workdir = pagesdir + gen_data_base
+    Path(workdir).mkdir(parents=True, exist_ok=True)
+    for gen in gen_data:
+        data = {"id": gen, "name": gen_names[gen], "books": gen_data[gen]}
+        workfile = pagesdir + gen_data_base + gen + ".json"
+        with open(workfile, 'w') as idx:
+            json.dump(data, idx, indent=2, ensure_ascii=False)
+        gen_processed[gen] = 1

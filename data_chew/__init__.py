@@ -9,7 +9,7 @@ import logging
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-# from .strings import get_genres, get_genres_meta, get_genres_replace, genres, unicode_upper
+from .strings import get_genres, get_genres_meta, get_genres_replace, genres, unicode_upper
 # from .strings import genres_replace, id2path, id2pathonly, get_genre_meta, get_meta_name
 
 from .data import get_genre, get_author_struct
@@ -20,9 +20,10 @@ from .data import get_struct_by_key, make_id, get_replace_list, replace_book
 from .data import get_title  # , seqs_in_data, nonseq_from_data
 from .inpx import get_inpx_meta
 
-from .idx import auth_processed, seq_processed  # vars
+from .idx import auth_processed, seq_processed, gen_processed  # vars
 from .idx import make_global_indexes, make_auth_data, make_auth_subindexes
 from .idx import make_seq_data, make_seq_subindexes
+from .idx import make_gen_data
 
 READ_SIZE = 20480  # description in 20kb...
 INPX = "flibusta_fb2_local.inpx"  # filename of metadata indexes zip
@@ -143,6 +144,9 @@ def ziplist(inpx_data, zip_file):
 
 
 def process_lists(zipdir, pagesdir, stage):
+    get_genres_meta()
+    get_genres()
+    get_genres_replace()
     if stage == "global":
         make_global_indexes(zipdir, pagesdir)
     elif stage == "authors":
@@ -161,3 +165,10 @@ def process_lists(zipdir, pagesdir, stage):
             make_seq_data(pagesdir)
             logging.debug(" - processed sequences: %d/%d" % (len(seq_processed), seq_cnt))
         make_seq_subindexes(zipdir, pagesdir)
+    elif stage == "genres":
+        with open(pagesdir + "/allgenrecnt.json") as f:
+             gen_cnt = json.load(f)
+        logging.info("Creating genres indexes (total: %s)..." % gen_cnt)
+        while(len(gen_processed) < gen_cnt):
+            make_gen_data(pagesdir)
+            logging.debug(" - processed genres: %d/%d" % (len(gen_processed), gen_cnt))
