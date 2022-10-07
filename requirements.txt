@@ -7,7 +7,4 @@ xmltodict
 zipp
 
 streamjson
-json-stream
-
-# remove later:
-ijson
+jsonslicer

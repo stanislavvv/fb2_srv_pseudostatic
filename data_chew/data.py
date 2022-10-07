@@ -306,10 +306,11 @@ def seq_from_data(seq_id, data):
     return ret
 
 
-# return books[] without sequences
+# return books_id[] without sequences
 def nonseq_from_data(data):
     ret = []
     for book in data:
         if book["sequences"] is None:
-            ret.append(book)
+            book_id = book["book_id"]
+            ret.append(book_id)
     return ret

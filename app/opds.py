@@ -5,7 +5,7 @@ from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_l
 from .internals import get_book_link, url_str, is_substr
 
 import json
-import ijson
+# import ijson
 import logging
 import urllib
 import os

@@ -12,7 +12,7 @@ import shutil
 from app import create_app
 from data_chew import INPX
 from data_chew import create_booklist, update_booklist
-from data_chew import make_root, process_lists
+from data_chew import process_lists
 
 DEBUG = True  # default, configure in app/config.py
 DBLOGLEVEL = logging.DEBUG
@@ -80,11 +80,11 @@ if __name__ == "__main__":
         elif sys.argv[1] == "new_lists":
             new_lists()
         elif sys.argv[1] == "stage1":
-            fromlists("sequences")
+            fromlists("global")
         elif sys.argv[1] == "stage2":
             fromlists("authors")
         elif sys.argv[1] == "stage3":
-            fromlists("genres")
+            fromlists("sequences")
         else:
             usage()
     else:

@@ -1,4 +1,4 @@
 #!/bin/bash
 
 . venv/bin/activate
-./datachew.py
+./datachew.py "$@"
