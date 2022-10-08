@@ -474,7 +474,7 @@ def html_search_books():
     upref = "/html/"
     tag = "tag:search:books:"
     subtag = "tag:book:"
-    title = "Поиск среди серий по '" + s_term + "'"
+    title = "Поиск среди кинг по '" + s_term + "'"
     data = search_term(s_term, idx, tag, title, baseref, self, upref, subtag, "book")
     title = data['feed']['title']
     updated = data['feed']['updated']

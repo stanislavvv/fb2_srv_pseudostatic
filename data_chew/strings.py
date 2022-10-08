@@ -168,6 +168,7 @@ def id2path(id: str):
     second = id[2:4]
     return first + "/" + second + "/" + id
 
+
 def id2pathonly(id: str):
     first = id[:2]
     second = id[2:4]

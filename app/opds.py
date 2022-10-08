@@ -523,7 +523,7 @@ def author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, 
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
     workfile = rootdir + "/" + idx + ".json"
-    aush_data = {}
+    auth_data = {}
     ret = ret_hdr()
     ret["feed"]["updated"] = dtiso
     ret["feed"]["id"] = tag
@@ -883,7 +883,8 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
             workdir = rootdir + "/"
             i = 0
             with open(workdir + idx, "rb") as f:
-                for k, d in ijson.kvitems(f, 'data'):
+                for line in f:
+                    d = json.loads(line)
                     if restype == "auth" or restype == "seq":
                         if is_substr(s_term, d["name"]):
                             data.append(d)

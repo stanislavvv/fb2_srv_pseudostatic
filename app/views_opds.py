@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, Response
+from flask import Blueprint, Response, request
 from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main_author
 from .opds import author_seqs, get_main_name, name_list, random_data
-from .validate import validate_prefix, validate_id, validate_genre_meta, validate_genre
+from .opds import search_main, search_term
+from .validate import validate_prefix, validate_id, validate_genre_meta, validate_genre, validate_search
 from .internals import id2path
 
 import xmltodict
@@ -334,5 +335,67 @@ def opds_random_seqs():
                 seqref,
                 subtag,
                 False)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/search", methods=['GET'])
+def opds_search():
+    s_term = request.args.get('searchTerm')
+    s_term = validate_search(s_term)
+    baseref = "/opds/"
+    self = "/opds/search"
+    upref = "/opds/"
+    tag = "tag:search::"
+    title = "Поиск по '" + s_term + "'"
+    data = search_main(s_term, tag, title, baseref, self, upref)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/search-authors", methods=['GET'])
+def opds_search_authors():
+    s_term = request.args.get('searchTerm')
+    s_term = validate_search(s_term)
+    idx = "allauthors.json"
+    baseref = "/opds/author/"
+    self = "/opds/search-authors"
+    upref = "/opds/"
+    tag = "tag:search:authors:"
+    subtag = "tag:author:"
+    title = "Поиск среди авторов по '" + s_term + "'"
+    data = search_term(s_term, idx, tag, title, baseref, self, upref, subtag, "auth")
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/search-sequences", methods=['GET'])
+def opds_search_sequences():
+    s_term = request.args.get('searchTerm')
+    s_term = validate_search(s_term)
+    idx = "allsequences.json"
+    baseref = "/opds/sequence/"
+    self = "/opds/search-sequences"
+    upref = "/opds/"
+    tag = "tag:search:sequences:"
+    subtag = "tag:sequence:"
+    title = "Поиск среди серий по '" + s_term + "'"
+    data = search_term(s_term, idx, tag, title, baseref, self, upref, subtag, "seq")
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route("/opds/search-books", methods=['GET'])
+def opds_search_books():
+    s_term = request.args.get('searchTerm')
+    s_term = validate_search(s_term)
+    idx = "allbooks.json"
+    baseref = "/opds/book/"
+    self = "/opds/search-books"
+    upref = "/opds/"
+    tag = "tag:search:books:"
+    subtag = "tag:book:"
+    title = "Поиск среди кинг по '" + s_term + "'"
+    data = search_term(s_term, idx, tag, title, baseref, self, upref, subtag, "book")
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')

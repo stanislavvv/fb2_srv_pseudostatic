@@ -360,6 +360,7 @@ def make_gen_data(pagesdir):
             json.dump(data, idx, indent=2, ensure_ascii=False)
         gen_processed[gen] = 1
 
+
 def make_gen_subindexes(pagesdir):
     meta_root = []
     gen_base = "/genresindex/"  # for genre indexes
@@ -367,10 +368,10 @@ def make_gen_subindexes(pagesdir):
     workdir = pagesdir + gen_base
     Path(workdir).mkdir(parents=True, exist_ok=True)
     with open(genresmetaindex) as f:
-       metainfo = json.load(f)
-       for meta in metainfo:
-           meta_root.append({"id": meta, "name": get_meta_name(meta)})
-           with open(workdir + meta + ".json", "w") as f:
-               json.dump(metainfo[meta], f, indent=2, ensure_ascii=False)
+        metainfo = json.load(f)
+        for meta in metainfo:
+            meta_root.append({"id": meta, "name": get_meta_name(meta)})
+            with open(workdir + meta + ".json", "w") as f:
+                json.dump(metainfo[meta], f, indent=2, ensure_ascii=False)
     with open(workdir + "index.json", "w") as f:
         json.dump(meta_root, f, indent=2, ensure_ascii=False)

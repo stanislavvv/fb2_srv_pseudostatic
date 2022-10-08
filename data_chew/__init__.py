@@ -9,15 +9,11 @@ import logging
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-from .strings import get_genres, get_genres_meta, get_genres_replace, genres, unicode_upper
-# from .strings import genres_replace, id2path, id2pathonly, get_genre_meta, get_meta_name
+from .strings import get_genres, get_genres_meta, get_genres_replace
 
-from .data import get_genre, get_author_struct
-# from .data import get_sequence, get_lang
-from .data import get_sequence, get_lang
+from .data import get_genre, get_author_struct, get_sequence, get_lang, get_title
 from .data import get_struct_by_key, make_id, get_replace_list, replace_book
-# from .data import get_title, seqs_in_data, seq_from_data, nonseq_from_data
-from .data import get_title  # , seqs_in_data, nonseq_from_data
+
 from .inpx import get_inpx_meta
 
 from .idx import auth_processed, seq_processed, gen_processed  # vars
@@ -159,7 +155,7 @@ def process_lists(zipdir, pagesdir, stage):
         make_auth_subindexes(pagesdir)
     elif stage == "sequences":
         with open(pagesdir + "/allsequencecnt.json") as f:
-             seq_cnt = json.load(f)
+            seq_cnt = json.load(f)
         logging.info("Creating sequences indexes (total: %d)..." % seq_cnt)
         while(len(seq_processed) < seq_cnt):
             make_seq_data(pagesdir)
@@ -167,7 +163,7 @@ def process_lists(zipdir, pagesdir, stage):
         make_seq_subindexes(pagesdir)
     elif stage == "genres":
         with open(pagesdir + "/allgenrecnt.json") as f:
-             gen_cnt = json.load(f)
+            gen_cnt = json.load(f)
         logging.info("Creating genres indexes (total: %s)..." % gen_cnt)
         while(len(gen_processed) < gen_cnt):
             make_gen_data(pagesdir)
