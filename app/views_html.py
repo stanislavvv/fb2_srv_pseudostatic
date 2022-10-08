@@ -18,7 +18,6 @@ redir_all = "html.html_root"
 @html.route("/html/", methods=['GET'])
 def html_root():
     data = main_opds()
-    print(data)
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']
@@ -202,7 +201,7 @@ def html_author_seq(sub1, sub2, id, seq_id):
     sub2 = validate_id(sub2)
     id = validate_id(id)
     seq_id = validate_id(seq_id)
-    idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, seq_id)
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
     self = "/html/" + idx
     upref = "/html/author/%s/%s/%s" % (sub1, sub2, id)
     tag = "tag:root:author:" + id + ":sequence:" + seq_id
@@ -224,7 +223,7 @@ def html_author_nonseq(sub1, sub2, id):
     sub1 = validate_id(sub1)
     sub2 = validate_id(sub2)
     id = validate_id(id)
-    idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, "sequenceless")
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
     self = "/html/" + idx
     upref = "/html/author/" + id2path(id)
     tag = "tag:root:author:" + id
@@ -253,7 +252,7 @@ def html_author_alphabet(sub1, sub2, id):
     title = "Книги по алфавиту автора "
     authref = "/html/author/"
     seqref = "/html/sequence/"
-    data = books_list(idx, tag, title, self, upref, authref, seqref, None)
+    data = books_list(idx, tag, title, self, upref, authref, seqref, '')
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']
@@ -331,7 +330,7 @@ def html_genre(id):
     self = "/html/" + idx
     upref = "/html/"
     tag = "tag:root:genre:" + id
-    title = "Серия "
+    title = "Жанр "
     authref = "/html/author/"
     seqref = "/html/sequence/"
     data = books_list(idx, tag, title, self, upref, authref, seqref, id)
@@ -353,7 +352,7 @@ def html_random_books():
     authref = "/html/author/"
     seqref = "/html/sequence/"
     datafile = "allbooks.json"
-    cntfile = "allbookscnt.json"
+    cntfile = "allbookcnt.json"
     subtag = ""  # not for books
     data = random_data(
                 datafile,

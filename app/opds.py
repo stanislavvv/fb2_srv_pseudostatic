@@ -317,23 +317,9 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
-    workdir = rootdir + "/" + idx
-    if os.path.isdir(workdir):
-        namefile = workdir + "/name.json"
-        listfile = workdir + "/index.json"
-    else:
-        namefile = workdir + ".name.json"
-        listfile = workdir + ".json"
-    try:
-        with open(namefile) as nm:
-            name = json.load(nm)
-            name = "'" + name + "'"
-    except Exception as e:
-        logging.error(e)
-        name = ""
+    workfile = rootdir + "/" + idx + ".json"
     ret = ret_hdr()
     ret["feed"]["updated"] = dtiso
-    ret["feed"]["title"] = title + name
     ret["feed"]["id"] = tag
     ret["feed"]["link"].append(
         {
@@ -350,12 +336,15 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
         }
     )
     try:
-        with open(listfile) as jsfile:
-            data = json.load(jsfile)
+        with open(workfile) as nm:
+            data = json.load(nm)
+            name = "'" + data["name"] + "'"
     except Exception as e:
         logging.error(e)
         return ret
-    if seq_id is not None and not timeorder:
+    ret["feed"]["title"] = title + name
+    data = data["books"]
+    if seq_id is not None and seq_id != '' and not timeorder:
         dfix = []
         for d in data:
             seq_num = -1
@@ -368,8 +357,14 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
         data = sorted(dfix, key=lambda s: s["seq_num"] or -1)
     elif timeorder:
         data = sorted(data, key=lambda s: s["date_time"])
-    else:
+    elif seq_id is not None and seq_id == '':
         data = sorted(data, key=lambda s: s["book_title"])
+    else:  # seq_id == None
+        dfix = []
+        for d in data:
+            if d["sequences"] is None:
+                dfix.append(d)
+        data = sorted(dfix, key=lambda s: s["book_title"])
     for d in data:
         book_title = d["book_title"]
         book_id = d["book_id"]
@@ -401,7 +396,7 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
                 }
             )
 
-        if d["sequences"] is not None:
+        if d["sequences"] is not None and d["sequences"] != '-':
             for seq in d["sequences"]:
                 links.append(get_seq_link(approot, seqref, id2path(seq["id"]), seq["name"]))
                 if seq_id is not None:
@@ -433,11 +428,11 @@ def main_author(idx, tag, title, self, upref, authref, seqref, auth_id):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
-    workdir = rootdir + "/" + idx
+    workfile = rootdir + "/" + idx + ".json"
     try:
-        with open(workdir + "/name.json") as nm:
-            auth_name = json.load(nm)
-            auth_name = "'" + auth_name + "'"
+        with open(workfile) as nm:
+            auth_data = json.load(nm)
+            auth_name = "'" + auth_data["name"] + "'"
     except Exception as e:
         logging.error(e)
         auth_name = ""
@@ -527,17 +522,10 @@ def author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, 
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
-    workdir = rootdir + "/" + idx
-    try:
-        with open(workdir + "/name.json") as nm:
-            auth_name = json.load(nm)
-            auth_name = "'" + auth_name + "'"
-    except Exception as e:
-        logging.error(e)
-        auth_name = ""
+    workfile = rootdir + "/" + idx + ".json"
+    aush_data = {}
     ret = ret_hdr()
     ret["feed"]["updated"] = dtiso
-    ret["feed"]["title"] = title + auth_name
     ret["feed"]["id"] = tag
     ret["feed"]["link"].append(
         {
@@ -553,13 +541,16 @@ def author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, 
             "@type": "application/atom+xml;profile=opds-catalog"
         }
     )
-    workfile = rootdir + "/" + idx + "/sequences.json"
     try:
-        with open(workfile) as jsfile:
-            data = json.load(jsfile)
+        with open(workfile) as nm:
+            auth_data = json.load(nm)
+            auth_name = "'" + auth_data["name"] + "'"
     except Exception as e:
         logging.error(e)
         return ret
+
+    ret["feed"]["title"] = title + auth_name
+    data = auth_data["sequences"]
     for d in sorted(data, key=lambda s: s["name"] or -1):
         name = d["name"]
         id = d["id"]
@@ -585,10 +576,10 @@ def author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, 
 def get_main_name(idx):
     ret = ""
     rootdir = current_app.config['STATIC']
-    workfile = rootdir + "/" + idx + "/name.json"
+    workfile = rootdir + "/" + idx + ".json"
     try:
         with open(workfile) as jsfile:
-            data = json.load(jsfile)
+            data = json.load(jsfile)["name"]
     except Exception as e:
         logging.error(e)
         return ret
@@ -665,8 +656,9 @@ def read_data(idx, nums):
     num = 0
     try:
         with open(idx, "rb") as f:
-            for k, d in ijson.kvitems(f, 'data'):
+            for b in f:
                 if num in nums:
+                    d = json.loads(b)
                     ret.append(d)
                 num = num + 1
     except Exception as e:

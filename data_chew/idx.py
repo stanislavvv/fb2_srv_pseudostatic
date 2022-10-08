@@ -79,13 +79,12 @@ def process_list_books(fd, booklist):
                     gen_idx[gen_id] = s
 
 
-
 def make_global_indexes(zipdir, pagesdir):
     global seq_cnt
     global auth_cnt
     global gen_cnt
     global gen_root
-    
+
     logging.info("Preprocessing lists...")
     get_genres_meta()
     get_genres()  # official genres from genres.list
@@ -165,15 +164,15 @@ def make_auth_data(pagesdir):
         data = auth_data[auth_id]
         data["sequences"] = seqs_in_data(auth_data[auth_id]["books"])
         data["nonseq_book_ids"] = nonseq_from_data(auth_data[auth_id]["books"])
-        workdir = pagesdir + "/authors/" + id2pathonly(auth_id)
-        workfile = pagesdir + "/authors/" + id2path(auth_id) + ".json"
+        workdir = pagesdir + "/author/" + id2pathonly(auth_id)
+        workfile = pagesdir + "/author/" + id2path(auth_id) + ".json"
         Path(workdir).mkdir(parents=True, exist_ok=True)
         with open(workfile, 'w') as idx:
             json.dump(data, idx, indent=2, ensure_ascii=False)
         auth_processed[auth_id] = 1
 
 
-def make_auth_subindexes(zipdir, pagesdir):
+def make_auth_subindexes(pagesdir):
     auth_base = "/authorsindex/"
     auth_names = {}
     auth_root = {}
@@ -227,9 +226,6 @@ def make_auth_subindexes(zipdir, pagesdir):
     logging.debug(" - saving main authors index...")
     workpath = pagesdir + auth_base
     Path(workpath).mkdir(parents=True, exist_ok=True)
-    # data = []
-    # for s in auth_root:
-    #     data.append(s)
     with open(workpath + "index.json", 'w') as idx:
         json.dump(auth_root, idx, indent=2, ensure_ascii=False)
 
@@ -257,19 +253,20 @@ def make_seq_data(pagesdir):
                             seq_data[seq_id] = s
     for seq_id in seq_data:
         data = seq_data[seq_id]
-        workdir = pagesdir + "/sequences/" + id2pathonly(seq_id)
-        workfile = pagesdir + "/sequences/" + id2path(seq_id) + ".json"
+        workdir = pagesdir + "/sequence/" + id2pathonly(seq_id)
+        workfile = pagesdir + "/sequence/" + id2path(seq_id) + ".json"
         Path(workdir).mkdir(parents=True, exist_ok=True)
         with open(workfile, 'w') as idx:
             json.dump(data, idx, indent=2, ensure_ascii=False)
         seq_processed[seq_id] = 1
 
 
-def make_seq_subindexes(zipdir, pagesdir):
+def make_seq_subindexes(pagesdir):
     seq_base = "/sequencesindex/"
     seq_names = {}
     seq_root = {}
     seq_subroot = {}
+    seq_data = {}
     seqindex = pagesdir + "/allsequences.json"
     with open(seqindex) as f:
         for s in f:
@@ -277,11 +274,13 @@ def make_seq_subindexes(zipdir, pagesdir):
             seq_id = seq["id"]
             seq_name = seq["name"]
             seq_names[seq_id] = seq_name
+            seq_data[seq_id] = seq
     for seq in seq_names:
         name = seq_names[seq]
         first = unicode_upper(name[:1])
         three = unicode_upper(name[:3])
         seq_root[first] = 1
+        print(seq)
         if first in seq_subroot:
             s = seq_subroot[first]
             if three in s:
@@ -311,7 +310,7 @@ def make_seq_subindexes(zipdir, pagesdir):
             out = []
             for seq_id in s[three]:
                 seq_name = seq_names[seq_id]
-                seq = {"id": seq_id, "name": seq_name}
+                seq = seq_data[seq_id]
                 out.append(seq)
             with open(wpath + "/index.json", 'w') as idx:
                 json.dump(out, idx, indent=2, ensure_ascii=False)
@@ -328,13 +327,9 @@ def make_gen_data(pagesdir):
     global gen_idx
     global gen_processed
 
-    gen_base = "/genresindex/"  # for genre indexes
     gen_data_base = "/genre/"  # for genre data
     gen_data = {}
     gen_names = {}
-
-    workpath = pagesdir + gen_base
-    genpath_base = pagesdir + gen_data_base
 
     booksindex = pagesdir + "/allbooks.json"
     with open(booksindex) as f:
@@ -364,3 +359,18 @@ def make_gen_data(pagesdir):
         with open(workfile, 'w') as idx:
             json.dump(data, idx, indent=2, ensure_ascii=False)
         gen_processed[gen] = 1
+
+def make_gen_subindexes(pagesdir):
+    meta_root = []
+    gen_base = "/genresindex/"  # for genre indexes
+    genresmetaindex = pagesdir + "/allgenresmeta.json"
+    workdir = pagesdir + gen_base
+    Path(workdir).mkdir(parents=True, exist_ok=True)
+    with open(genresmetaindex) as f:
+       metainfo = json.load(f)
+       for meta in metainfo:
+           meta_root.append({"id": meta, "name": get_meta_name(meta)})
+           with open(workdir + meta + ".json", "w") as f:
+               json.dump(metainfo[meta], f, indent=2, ensure_ascii=False)
+    with open(workdir + "index.json", "w") as f:
+        json.dump(meta_root, f, indent=2, ensure_ascii=False)

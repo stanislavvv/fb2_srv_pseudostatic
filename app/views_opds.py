@@ -169,7 +169,7 @@ def opds_author_seq(sub1, sub2, id, seq_id):
     sub2 = validate_id(sub2)
     id = validate_id(id)
     seq_id = validate_id(seq_id)
-    idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, seq_id)
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
     self = "/opds/" + idx
     upref = "/opds/author/%s/%s/%s" % (sub1, sub2, id)
     tag = "tag:root:author:" + id + ":sequence:" + seq_id
@@ -187,7 +187,7 @@ def opds_author_nonseq(sub1, sub2, id):
     sub1 = validate_id(sub1)
     sub2 = validate_id(sub2)
     id = validate_id(id)
-    idx = "author/%s/%s/%s/%s" % (sub1, sub2, id, "sequenceless")
+    idx = "author/%s/%s/%s" % (sub1, sub2, id)
     self = "/opds/" + idx
     upref = "/opds/author/" + id2path(id)
     tag = "tag:root:author:" + id
@@ -212,7 +212,7 @@ def opds_author_alphabet(sub1, sub2, id):
     title = "Книги по алфавиту автора "
     authref = "/opds/author/"
     seqref = "/opds/sequence/"
-    data = books_list(idx, tag, title, self, upref, authref, seqref, None)
+    data = books_list(idx, tag, title, self, upref, authref, seqref, '')
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')
 
@@ -274,7 +274,7 @@ def opds_genre(id):
     self = "/opds/" + idx
     upref = "/opds/"
     tag = "tag:root:genre:" + id
-    title = "Серия "
+    title = "Жанр "
     authref = "/opds/author/"
     seqref = "/opds/sequence/"
     data = books_list(idx, tag, title, self, upref, authref, seqref, id)

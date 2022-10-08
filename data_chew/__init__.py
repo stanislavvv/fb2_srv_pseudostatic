@@ -23,7 +23,7 @@ from .inpx import get_inpx_meta
 from .idx import auth_processed, seq_processed, gen_processed  # vars
 from .idx import make_global_indexes, make_auth_data, make_auth_subindexes
 from .idx import make_seq_data, make_seq_subindexes
-from .idx import make_gen_data
+from .idx import make_gen_data, make_gen_subindexes
 
 READ_SIZE = 20480  # description in 20kb...
 INPX = "flibusta_fb2_local.inpx"  # filename of metadata indexes zip
@@ -156,7 +156,7 @@ def process_lists(zipdir, pagesdir, stage):
         while(len(auth_processed) < auth_cnt):
             make_auth_data(pagesdir)
             logging.debug(" - processed authors: %d/%d" % (len(auth_processed), auth_cnt))
-        make_auth_subindexes(zipdir, pagesdir)
+        make_auth_subindexes(pagesdir)
     elif stage == "sequences":
         with open(pagesdir + "/allsequencecnt.json") as f:
              seq_cnt = json.load(f)
@@ -164,7 +164,7 @@ def process_lists(zipdir, pagesdir, stage):
         while(len(seq_processed) < seq_cnt):
             make_seq_data(pagesdir)
             logging.debug(" - processed sequences: %d/%d" % (len(seq_processed), seq_cnt))
-        make_seq_subindexes(zipdir, pagesdir)
+        make_seq_subindexes(pagesdir)
     elif stage == "genres":
         with open(pagesdir + "/allgenrecnt.json") as f:
              gen_cnt = json.load(f)
@@ -172,3 +172,4 @@ def process_lists(zipdir, pagesdir, stage):
         while(len(gen_processed) < gen_cnt):
             make_gen_data(pagesdir)
             logging.debug(" - processed genres: %d/%d" % (len(gen_processed), gen_cnt))
+        make_gen_subindexes(pagesdir)
