@@ -240,7 +240,7 @@ def make_seq_data(pagesdir):
                 for seq in book["sequences"]:
                     seq_id = seq.get("id")
                     seq_name = seq.get("name")
-                    if seq_id not in seq_processed:
+                    if seq_id is not None and not in seq_processed:
                         if seq_id in seq_data:
                             s = seq_data[seq_id]["books"]
                             s.append(book)

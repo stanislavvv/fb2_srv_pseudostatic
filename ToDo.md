@@ -1,8 +1,7 @@
 # To Do
 
-- send file as `text/html` from static struct, return 404, if not in struct (as ../../../etc/passwd, e.g. sanitize input)
+- input sanitizing (../ and other)
 - single place for '/opds/authors/', '/opds/sequence/', '/opds/genres/' links place (code refinement)
-- multiple pass over `.list` for lower peak memory consumption (no OOM on Orange PI)
 
 # FIX
 
