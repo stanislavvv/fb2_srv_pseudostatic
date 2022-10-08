@@ -280,7 +280,6 @@ def make_seq_subindexes(pagesdir):
         first = unicode_upper(name[:1])
         three = unicode_upper(name[:3])
         seq_root[first] = 1
-        print(seq)
         if first in seq_subroot:
             s = seq_subroot[first]
             if three in s:
