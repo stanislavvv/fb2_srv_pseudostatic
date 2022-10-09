@@ -857,7 +857,8 @@ def search_main(s_term, tag, title, baseref, self, upref):
 
 
 # restype = (auth|seq|book)
-def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
+def search_term(s_term, tag, title, baseref, self, upref, subtag, restype):
+    idx_titles = "allbooktitles.json"
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     ret = ret_hdr()
@@ -887,19 +888,30 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
             maxres = current_app.config['MAX_SEARCH_RES']
             workdir = rootdir + "/"
             i = 0
-            with open(workdir + idx, "rb") as f:
-                for line in f:
-                    d = json.loads(line)
-                    if restype == "auth" or restype == "seq":
-                        if is_substr(s_term, d["name"]):
-                            data.append(d)
-                            i = i + 1
-                    elif restype == "book":
-                        if is_substr(s_term, d["book_title"]):
-                            data.append(d)
-                            i = i + 1
-                    if i >= maxres:
-                        break
+            if restype == "book":
+                nums = []
+                with open(workdir + idx_titles) as f:
+                    book_titles = json.load(f)
+                    num = 0
+                    for book_id in book_titles:
+                        if is_substr(s_term, book_titles[book_id]):
+                            nums.append(num)
+                        num = num + 1
+                data = read_data(idx, nums)
+            else:
+                with open(workdir + idx, "rb") as f:
+                    for line in f:
+                        d = json.loads(line)
+                        if restype == "auth" or restype == "seq":
+                            if is_substr(s_term, d["name"]):
+                                data.append(d)
+                                i = i + 1
+                        elif restype == "book":
+                            if is_substr(s_term, d["book_title"]):
+                                data.append(d)
+                                i = i + 1
+                        if i >= maxres:
+                            break
             if restype == "auth" or restype == "seq":
                 data = sorted(data, key=lambda s: s["name"] or -1)
             elif restype == "book":
