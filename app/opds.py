@@ -2,7 +2,7 @@
 
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
-from .internals import get_book_link, url_str, is_substr
+from .internals import get_book_link, url_str, is_substr, get_seq_name
 
 import json
 # import ijson
@@ -338,6 +338,9 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
     try:
         with open(workfile) as nm:
             data = json.load(nm)
+        if seq_id is not None and seq_id != '':
+            name = "'" + get_seq_name(seq_id) + "'"
+        else:
             name = "'" + data["name"] + "'"
     except Exception as e:
         logging.error(e)
@@ -354,8 +357,8 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
                         snum = s.get("num")
                         if snum is not None:
                             seq_num = int(snum)
-            d["seq_num"] = seq_num
-            dfix.append(d)
+                        d["seq_num"] = seq_num
+                        dfix.append(d)
         data = sorted(dfix, key=lambda s: s["seq_num"] or -1)
     elif timeorder:
         data = sorted(data, key=lambda s: s["date_time"])

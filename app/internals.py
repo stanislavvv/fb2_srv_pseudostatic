@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from flask import current_app
 import datetime
 import urllib
+import json
 
 
 def get_dtiso():
@@ -94,3 +96,16 @@ def is_substr(sub, s):
     if sub in s:
         return True
     return False
+
+
+def get_seq_name(seq_id):
+    ret = ""
+    rootdir = current_app.config['STATIC']
+    seqidx = rootdir + "/allsequences.json"
+    with open(seqidx) as f:
+        for line in f:
+            seq = json.loads(line)
+            if seq["id"] == seq_id:
+                ret = seq["name"]
+                break
+    return ret
