@@ -8,3 +8,4 @@
 - use genres replacement when generating indexes
 - pagination in genre book lists
 - random and search in prod, header in search-books
+- genres in book list
