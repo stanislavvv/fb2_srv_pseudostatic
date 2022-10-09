@@ -15,6 +15,7 @@ MAX_PASS_LENGTH = 1000
 MAX_PASS_LENGTH_GEN = 10
 
 book_idx = {}
+book_titles = {}
 book_cnt = 0
 seq_idx = {}
 seq_cnt = 0
@@ -31,9 +32,11 @@ gen_processed = {}
 
 def process_list_books(fd, booklist):
     global book_cnt
+    global book_titles
     with open(booklist) as lst:
         data = json.load(lst)
     for book in data:
+        book_titles[book["book_id"]] = book.get("book_title")
         book["genres"] = genres_replace(book["genres"])
         # fd.send(book)
         fd.write(json.dumps(book, ensure_ascii=False))
@@ -101,6 +104,8 @@ def make_global_indexes(zipdir, pagesdir):
             i = i + 1
     with open(pagesdir + "/allbookcnt.json", 'w') as idx:
         json.dump(book_cnt, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allbooktitles.json", 'w') as idx:
+        json.dump(book_titles, idx, indent=2, ensure_ascii=False)
     seqindex = pagesdir + "/allsequences.json"
     logging.info("Writing sequences index...")
     with open(seqindex, "w") as fd:
