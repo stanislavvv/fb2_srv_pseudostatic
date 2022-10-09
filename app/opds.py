@@ -897,7 +897,7 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
                         if is_substr(s_term, book_titles[book_id]):
                             nums.append(num)
                         num = num + 1
-                data = read_data(idx, nums)
+                data = read_data(workdir + idx, nums)
             else:
                 with open(workdir + idx, "rb") as f:
                     for line in f:
