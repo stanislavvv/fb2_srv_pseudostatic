@@ -351,7 +351,9 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
             if d["sequences"] is not None:
                 for s in d["sequences"]:
                     if s["id"] == seq_id:
-                        seq_num = int(s["num"])
+                        snum = s.get("num")
+                        if snum is not None:
+                            seq_num = int(snum)
             d["seq_num"] = seq_num
             dfix.append(d)
         data = sorted(dfix, key=lambda s: s["seq_num"] or -1)
