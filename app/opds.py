@@ -857,7 +857,7 @@ def search_main(s_term, tag, title, baseref, self, upref):
 
 
 # restype = (auth|seq|book)
-def search_term(s_term, tag, title, baseref, self, upref, subtag, restype):
+def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
     idx_titles = "allbooktitles.json"
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
