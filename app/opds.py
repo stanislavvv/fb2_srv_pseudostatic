@@ -2,7 +2,7 @@
 
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
-from .internals import get_book_link, url_str, is_substr, get_seq_name
+from .internals import get_book_link, url_str, is_substr, get_seq_name, genre_names
 
 import json
 # import ijson
@@ -379,6 +379,7 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
         date_time = d["date_time"]
         zipfile = d["zipfile"]
         filename = d["filename"]
+        genres = d["genres"]
 
         authors = []
         links = []
@@ -400,7 +401,13 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
                     "@type": "application/atom+xml"
                 }
             )
-
+        for gen in genres:
+            category.append(
+                {
+                    "@label": genre_names[gen],
+                    "@term": gen
+                }
+            )
         if d["sequences"] is not None and d["sequences"] != '-':
             for seq in d["sequences"]:
                 links.append(get_seq_link(approot, seqref, id2path(seq["id"]), seq["name"]))
@@ -725,6 +732,7 @@ def random_data(
                 date_time = d["date_time"]
                 zipfile = d["zipfile"]
                 filename = d["filename"]
+                genres = d["genres"]
 
                 authors = []
                 links = []
@@ -742,6 +750,13 @@ def random_data(
                             "@rel": "related",
                             "@title": author["name"],
                             "@type": "application/atom+xml"
+                        }
+                    )
+                for gen in genres:
+                    category.append(
+                        {
+                            "@label": genre_names[gen],
+                            "@term": gen
                         }
                     )
 
@@ -965,6 +980,7 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
                 date_time = d["date_time"]
                 zipfile = d["zipfile"]
                 filename = d["filename"]
+                genres = d["genres"]
 
                 authors = []
                 links = []
@@ -985,6 +1001,13 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
                         }
                     )
 
+                for gen in genres:
+                    category.append(
+                        {
+                            "@label": genre_names[gen],
+                            "@term": gen
+                        }
+                    )
                 if d["sequences"] is not None:
                     for seq in d["sequences"]:
                         links.append(get_seq_link(approot, baseref, id2path(seq["id"]), seq["name"]))

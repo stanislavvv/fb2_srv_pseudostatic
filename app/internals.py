@@ -5,6 +5,8 @@ import datetime
 import urllib
 import json
 
+genre_names = {}
+
 
 def get_dtiso():
     return datetime.datetime.now().astimezone().replace(microsecond=0).isoformat()
@@ -109,3 +111,12 @@ def get_seq_name(seq_id):
                 ret = seq["name"]
                 break
     return ret
+
+
+def load_genres(pagesdir):
+    global genre_names
+    genidx = pagesdir + "/allgenres.json"
+    with open(genidx) as f:
+        for g in f:
+            genre = json.loads(g)
+            genre_names[genre["id"]] = genre["name"]

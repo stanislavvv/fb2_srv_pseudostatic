@@ -395,7 +395,7 @@ def opds_search_books():
     upref = "/opds/"
     tag = "tag:search:books:"
     subtag = "tag:book:"
-    title = "Поиск среди кинг по '" + s_term + "'"
+    title = "Поиск среди книг по '" + s_term + "'"
     data = search_term(s_term, idx, tag, title, baseref, self, upref, subtag, "book")
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')
