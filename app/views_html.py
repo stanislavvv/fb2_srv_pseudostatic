@@ -50,7 +50,7 @@ def html_seq_root():
 def html_seq_sub(sub):
     sub = validate_prefix(sub)
     data = []
-    if len(sub) == 3:
+    if len(sub) >= 3:
         idx = "sequencesindex/" + sub
         self = "/html/sequencesindex/" + sub
         baseref = "/html/sequence/"
@@ -60,7 +60,7 @@ def html_seq_sub(sub):
         subtag = "tag:sequences:"
         subtitle = "Книги на "
         data = seq_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
-    elif len(sub) == 1:
+    else:
         idx = "sequencesindex/" + sub
         self = "/html/sequencesindex/" + sub
         upref = "/html/sequencesindex/"
@@ -123,7 +123,7 @@ def html_auth_root():
 def html_auth_sub(sub):
     sub = validate_prefix(sub)
     data = []
-    if len(sub) == 3:
+    if len(sub) >= 3:
         idx = "authorsindex/" + sub
         self = "/html/authorsindex/" + sub
         baseref = "/html/author/"
@@ -133,7 +133,7 @@ def html_auth_sub(sub):
         subtag = "tag:authors:"
         subtitle = "Авторы на "
         data = auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
-    elif len(sub) == 1:
+    else:
         idx = "authorsindex/" + sub
         self = "/html/authorsindex/" + sub
         upref = "/html/authorsindex/"

@@ -42,7 +42,7 @@ def opds_seq_root():
 def opds_seq_sub(sub):
     sub = validate_prefix(sub)
     data = []
-    if len(sub) == 3:
+    if len(sub) >= 3:
         idx = "sequencesindex/" + sub
         self = "/opds/sequencesindex/" + sub
         baseref = "/opds/sequence/"
@@ -52,7 +52,7 @@ def opds_seq_sub(sub):
         subtag = "tag:sequences:"
         subtitle = "Книги на "
         data = seq_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
-    elif len(sub) == 1:
+    else:
         idx = "sequencesindex/" + sub
         self = "/opds/sequencesindex/" + sub
         upref = "/opds/sequencesindex/"
@@ -104,7 +104,7 @@ def opds_auth_root():
 def opds_auth_sub(sub):
     sub = validate_prefix(sub)
     data = []
-    if len(sub) == 3:
+    if len(sub) >= 3:
         idx = "authorsindex/" + sub
         self = "/opds/authorsindex/" + sub
         baseref = "/opds/author/"
@@ -114,7 +114,7 @@ def opds_auth_sub(sub):
         subtag = "tag:authors:"
         subtitle = "Авторы на "
         data = auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
-    elif len(sub) == 1:
+    else:
         idx = "authorsindex/" + sub
         self = "/opds/authorsindex/" + sub
         upref = "/opds/authorsindex/"

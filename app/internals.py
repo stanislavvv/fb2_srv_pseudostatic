@@ -149,3 +149,9 @@ def paginate_array(data, page: int):
     if len(ret) < pagesize:
         next = None
     return ret, next
+
+
+
+# mostly close tags
+def html_refine(txt):
+    return txt

@@ -3,7 +3,7 @@
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
 from .internals import get_book_link, url_str, is_substr, get_seq_name, genre_names
-from .internals import paginate_array, unicode_upper
+from .internals import paginate_array, unicode_upper, html_refine
 
 import json
 # import ijson
@@ -394,7 +394,7 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
         book_title = d["book_title"]
         book_id = d["book_id"]
         lang = d["lang"]
-        annotation = d["annotation"]
+        annotation = html_refine(d["annotation"])
         size = int(d["size"])
         date_time = d["date_time"]
         zipfile = d["zipfile"]
@@ -749,7 +749,7 @@ def random_data(
                 book_title = d["book_title"]
                 book_id = d["book_id"]
                 lang = d["lang"]
-                annotation = d["annotation"]
+                annotation = html_refine(d["annotation"])
                 size = int(d["size"])
                 date_time = d["date_time"]
                 zipfile = d["zipfile"]
@@ -998,7 +998,7 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
                 book_title = d["book_title"]
                 book_id = d["book_id"]
                 lang = d["lang"]
-                annotation = d["annotation"]
+                annotation = html_refine(d["annotation"])
                 size = int(d["size"])
                 date_time = d["date_time"]
                 zipfile = d["zipfile"]

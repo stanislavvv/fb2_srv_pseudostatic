@@ -181,6 +181,7 @@ def make_auth_data(pagesdir):
 
 def make_auth_subindexes(pagesdir):
     auth_base = "/authorsindex/"
+    # auth_base_3 = auth_base + "sub/"
     auth_names = {}
     auth_root = {}
     auth_subroot = {}
@@ -196,6 +197,8 @@ def make_auth_subindexes(pagesdir):
         name = auth_names[auth]
         first = unicode_upper(name[:1])
         three = unicode_upper(name[:3])
+        if len(three) < 3:
+            three = "%-3s" % three
         auth_root[first] = 1
         if first in auth_subroot:
             s = auth_subroot[first]
