@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from flask import current_app
+import logging
 import datetime
 import urllib
 import json
+import os
 
 genre_names = {}
 
@@ -116,7 +118,11 @@ def get_seq_name(seq_id):
 def load_genres(pagesdir):
     global genre_names
     genidx = pagesdir + "/allgenres.json"
-    with open(genidx) as f:
-        for g in f:
-            genre = json.loads(g)
-            genre_names[genre["id"]] = genre["name"]
+    if os.path.exists(genidx):
+        try:
+            with open(genidx) as f:
+                for g in f:
+                    genre = json.loads(g)
+                    genre_names[genre["id"]] = genre["name"]
+        except Exception as e:
+            logging.error(e)
