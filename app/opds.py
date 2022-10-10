@@ -3,7 +3,7 @@
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
 from .internals import get_book_link, url_str, is_substr, get_seq_name, genre_names
-from .internals import paginate_array
+from .internals import paginate_array, unicode_upper
 
 import json
 # import ijson
@@ -237,7 +237,7 @@ def seq_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data, key=lambda s: s["name"] or -1):
+    for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
         name = d["name"]
         id = d["id"]
         cnt = d["cnt"]
@@ -293,7 +293,7 @@ def auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data, key=lambda s: s["name"] or -1):
+    for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
         name = d["name"]
         id = d["id"]
         ret["feed"]["entry"].append(
@@ -360,17 +360,17 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
                             seq_num = int(snum)
                         d["seq_num"] = seq_num
                         dfix.append(d)
-        data = sorted(dfix, key=lambda s: s["seq_num"] or -1)
+        data = sorted(dfix, key=lambda s: unicode_upper(s["seq_num"]) or -1)
     elif timeorder:
-        data = sorted(data, key=lambda s: s["date_time"])
+        data = sorted(data, key=lambda s: unicode_upper(s["date_time"]))
     elif seq_id is not None and seq_id == '':
-        data = sorted(data, key=lambda s: s["book_title"])
+        data = sorted(data, key=lambda s: unicode_upper(s["book_title"]))
     else:  # seq_id == None
         dfix = []
         for d in data:
             if d["sequences"] is None:
                 dfix.append(d)
-        data = sorted(dfix, key=lambda s: s["book_title"])
+        data = sorted(dfix, key=lambda s: unicode_upper(s["book_title"]))
     if paginate:
         data, next = paginate_array(data, page)
         prev = page - 1
@@ -585,7 +585,7 @@ def author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, 
 
     ret["feed"]["title"] = title + auth_name
     data = auth_data["sequences"]
-    for d in sorted(data, key=lambda s: s["name"] or -1):
+    for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
         name = d["name"]
         id = d["id"]
         cnt = d["cnt"]
@@ -655,7 +655,7 @@ def name_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data, key=lambda s: s["name"] or -1):
+    for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
         name = d["name"]
         id = d["id"]
         ret["feed"]["entry"].append(
@@ -951,9 +951,9 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
                         if i >= maxres:
                             break
             if restype == "auth" or restype == "seq":
-                data = sorted(data, key=lambda s: s["name"] or -1)
+                data = sorted(data, key=lambda s: unicode_upper(s["name"]) or -1)
             elif restype == "book":
-                data = sorted(data, key=lambda s: s["book_title"] or -1)
+                data = sorted(data, key=lambda s: unicode_upper(s["book_title"]) or -1)
         except Exception as e:
             logging.error(e)
         for d in data:
