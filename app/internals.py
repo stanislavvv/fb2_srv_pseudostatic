@@ -6,8 +6,19 @@ import datetime
 import urllib
 import json
 import os
+import unicodedata as ud
 
 genre_names = {}
+
+
+# custom UPPER + normalize for sqlite and other
+def unicode_upper(s: str):
+    ret = ud.normalize('NFKD', s)
+    ret = ret.upper()
+    ret = ret.replace('Ё', 'Е')
+    ret = ret.replace('Й', 'И')
+    ret = ret.replace('Ъ', 'Ь')
+    return ret
 
 
 def get_dtiso():
@@ -94,10 +105,11 @@ def url_str(s):
     return urllib.parse.quote(ret, encoding='utf-8')
 
 
-# DUMMY, ToDo: rewrite with unicode_upper and some other
 # true if sub in s
 def is_substr(sub, s):
-    if sub in s:
+    sub_up = unicode_upper(sub)
+    s_up = unicode_upper(s)
+    if sub_up in s_up:
         return True
     return False
 
@@ -126,3 +138,10 @@ def load_genres(pagesdir):
                     genre_names[genre["id"]] = genre["name"]
         except Exception as e:
             logging.error(e)
+
+
+def paginate_array(data, page: int):
+    pagesize = int(current_app.config['PAGE_SIZE'])
+    begin = page * pagesize
+    end = (page + 1)*pagesize
+    return data[begin:end]

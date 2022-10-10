@@ -9,7 +9,7 @@ from pathlib import Path
 from .data import seqs_in_data, nonseq_from_data
 from .strings import get_genres, get_genres_meta, get_genres_replace, unicode_upper
 from .strings import genres_replace, id2path, id2pathonly, genres, get_genre_meta
-from .strings import get_meta_name
+from .strings import get_meta_name, genres_replacements
 
 MAX_PASS_LENGTH = 1000
 MAX_PASS_LENGTH_GEN = 10
@@ -67,7 +67,9 @@ def process_list_books(fd, booklist):
         if book["genres"] is not None:
             for gen in book["genres"]:
                 gen_id = gen
-                gen_name = gen
+                if gen in genres_replacements:
+                    gen_id = genres_replacements[gen]
+                gen_name = gen_id
                 if gen in genres:
                     gen_name = genres[gen]["descr"]
                 gen_names[gen_id] = gen_name

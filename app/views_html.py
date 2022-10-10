@@ -324,7 +324,8 @@ def html_gen_meta(sub):
 
 
 @html.route("/html/genre/<id>", methods=['GET'])
-def html_genre(id):
+@html.route("/html/genre/<id>/<int:page>", methods=['GET'])
+def html_genre(id, page=0):
     id = validate_genre(id)
     idx = "genre/%s" % (id)
     self = "/html/" + idx
@@ -333,7 +334,7 @@ def html_genre(id):
     title = "Жанр "
     authref = "/html/author/"
     seqref = "/html/sequence/"
-    data = books_list(idx, tag, title, self, upref, authref, seqref, id)
+    data = books_list(idx, tag, title, self, upref, authref, seqref, '', False, page, True)
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']

@@ -3,6 +3,7 @@
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
 from .internals import get_book_link, url_str, is_substr, get_seq_name, genre_names
+from .internals import paginate_array
 
 import json
 # import ijson
@@ -313,7 +314,7 @@ def auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     return ret
 
 
-def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=False):
+def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=False, page=0, paginate=False):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -353,7 +354,7 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
             seq_num = -1
             if d["sequences"] is not None:
                 for s in d["sequences"]:
-                    if s["id"] == seq_id:
+                    if s.get("id") == seq_id:
                         snum = s.get("num")
                         if snum is not None:
                             seq_num = int(snum)
@@ -370,6 +371,32 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
             if d["sequences"] is None:
                 dfix.append(d)
         data = sorted(dfix, key=lambda s: s["book_title"])
+    if paginate:
+        data = paginate_array(data, page)
+        prev = page - 1
+        if prev >= 0:
+            ret["feed"]["link"].append(
+                {
+                    "@href": approot + self + "/" + str(prev),
+                    "@rel": "prev",
+                    "@type": "application/atom+xml;profile=opds-catalog"
+                }
+            )
+        else:
+            ret["feed"]["link"].append(
+                {
+                    "@href": approot + self,
+                    "@rel": "prev",
+                    "@type": "application/atom+xml;profile=opds-catalog"
+                }
+            )
+        ret["feed"]["link"].append(
+            {
+                "@href": approot + self + "/" + str(page + 1),
+                "@rel": "next",
+                "@type": "application/atom+xml;profile=opds-catalog"
+            }
+        )
     for d in data:
         book_title = d["book_title"]
         book_id = d["book_id"]
@@ -410,17 +437,19 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
             )
         if d["sequences"] is not None and d["sequences"] != '-':
             for seq in d["sequences"]:
-                links.append(get_seq_link(approot, seqref, id2path(seq["id"]), seq["name"]))
-                if seq_id is not None:
-                    seq_name = seq["name"]
-                    seq_num = seq.get("num")
-                    if seq_num is None:
-                        seq_num = "0"
+                s_id = seq.get("id")
+                if s_id is not None:
+                    links.append(get_seq_link(approot, seqref, id2path(s_id), seq["name"]))
+                    if seq_id is not None and seq_id == s_id:
+                        seq_name = seq["name"]
+                        seq_num = seq.get("num")
+                        if seq_num is None:
+                            seq_num = "0"
 
         links.append(get_book_link(approot, zipfile, filename, 'dl'))
         links.append(get_book_link(approot, zipfile, filename, 'read'))
 
-        if seq_id is not None:
+        if seq_id is not None and seq_id != '':
             annotext = """
             <p class=\"book\"> %s </p>\n<br/>формат: fb2<br/>
             размер: %s<br/>Серия: %s, номер: %s<br/>
@@ -762,7 +791,8 @@ def random_data(
 
                 if d["sequences"] is not None:
                     for seq in d["sequences"]:
-                        links.append(get_seq_link(approot, seqref, id2path(seq["id"]), seq["name"]))
+                        if seq.get("id") is not None:
+                            links.append(get_seq_link(approot, seqref, id2path(seq["id"]), seq["name"]))
 
                 links.append(get_book_link(approot, zipfile, filename, 'dl'))
                 links.append(get_book_link(approot, zipfile, filename, 'read'))
@@ -1010,7 +1040,8 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
                     )
                 if d["sequences"] is not None:
                     for seq in d["sequences"]:
-                        links.append(get_seq_link(approot, baseref, id2path(seq["id"]), seq["name"]))
+                        if seq.get("id") is not None:
+                            links.append(get_seq_link(approot, baseref, id2path(seq["id"]), seq["name"]))
 
                 links.append(get_book_link(approot, zipfile, filename, 'dl'))
                 links.append(get_book_link(approot, zipfile, filename, 'read'))

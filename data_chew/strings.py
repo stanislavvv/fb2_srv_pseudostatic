@@ -21,7 +21,7 @@ def strnull(s):
     return str(s)
 
 
-# custom UPPER + normalize for sqlite
+# custom UPPER + normalize for sqlite and other
 def unicode_upper(s: str):
     ret = ud.normalize('NFKD', s)
     ret = ret.upper()
