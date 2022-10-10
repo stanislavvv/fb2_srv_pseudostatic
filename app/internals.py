@@ -144,4 +144,8 @@ def paginate_array(data, page: int):
     pagesize = int(current_app.config['PAGE_SIZE'])
     begin = page * pagesize
     end = (page + 1)*pagesize
-    return data[begin:end]
+    ret = data[begin:end]
+    next = page + 1
+    if len(ret) < pagesize:
+        next = None
+    return ret, next

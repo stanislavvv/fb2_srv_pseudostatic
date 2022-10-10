@@ -372,7 +372,7 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
                 dfix.append(d)
         data = sorted(dfix, key=lambda s: s["book_title"])
     if paginate:
-        data = paginate_array(data, page)
+        data, next = paginate_array(data, page)
         prev = page - 1
         if prev >= 0:
             ret["feed"]["link"].append(
@@ -382,21 +382,14 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
                     "@type": "application/atom+xml;profile=opds-catalog"
                 }
             )
-        else:
+        if next is not None:
             ret["feed"]["link"].append(
                 {
-                    "@href": approot + self,
-                    "@rel": "prev",
+                    "@href": approot + self + "/" + str(next),
+                    "@rel": "next",
                     "@type": "application/atom+xml;profile=opds-catalog"
                 }
             )
-        ret["feed"]["link"].append(
-            {
-                "@href": approot + self + "/" + str(page + 1),
-                "@rel": "next",
-                "@type": "application/atom+xml;profile=opds-catalog"
-            }
-        )
     for d in data:
         book_title = d["book_title"]
         book_id = d["book_id"]
