@@ -360,7 +360,7 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
                             seq_num = int(snum)
                         d["seq_num"] = seq_num
                         dfix.append(d)
-        data = sorted(dfix, key=lambda s: unicode_upper(s["seq_num"]) or -1)
+        data = sorted(dfix, key=lambda s: s["seq_num"] or -1)
     elif timeorder:
         data = sorted(data, key=lambda s: unicode_upper(s["date_time"]))
     elif seq_id is not None and seq_id == '':
