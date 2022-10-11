@@ -228,7 +228,7 @@ def html_author_nonseq(sub1, sub2, id):
     upref = "/html/author/" + id2path(id)
     tag = "tag:root:author:" + id
     idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
-    title = "Книги вне серий автора '" + get_main_name(idx2) + "'"
+    title = "Книги вне серий автора "
     authref = "/html/author/"
     seqref = "/html/sequence/"
     data = books_list(idx, tag, title, self, upref, authref, seqref, None)
