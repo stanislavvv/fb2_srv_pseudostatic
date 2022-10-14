@@ -154,7 +154,7 @@ def paginate_array(data, page: int):
 
 # ToDo: mostly close tags
 def html_refine(txt):
-    ht = BeautifulSoup(bytes(txt, 'utf-8'), 'html')
+    ht = BeautifulSoup(txt, 'html.parser')
     ret = ht.prettify()
     return ret
 
