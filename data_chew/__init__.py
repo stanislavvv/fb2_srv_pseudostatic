@@ -51,6 +51,7 @@ def update_booklist(inpx_data, zip_file):
 # get filename in opened zip (assume filename format as fb2), return book struct
 def fb2parse(z, filename, replace_data, inpx_data):
     file_info = z.getinfo(filename)
+    zip_file = str(os.path.basename(z.filename))
     fb2dt = datetime(*file_info.date_time)
     date_time = fb2dt.strftime("%F_%H:%M")
     size = file_info.file_size
@@ -76,6 +77,11 @@ def fb2parse(z, filename, replace_data, inpx_data):
     fb2data = get_struct_by_key('FictionBook', data)  # data['FictionBook']
     descr = get_struct_by_key('description', fb2data)  # fb2data['description']
     info = get_struct_by_key('title-info', descr)  # descr['title-info']
+    pubinfo = None
+    try:
+        pubinfo = get_struct_by_key('publish-info', descr)  # descr['publish-info']
+    except:
+        logging.warning("No publish info in %s/%s" % (zip_file, filename))
     if isinstance(info, list):
         # see f.fb2-513034-516388.zip/513892.fb2
         info = info[0]
@@ -105,10 +111,23 @@ def fb2parse(z, filename, replace_data, inpx_data):
     annotext = ''
     if 'annotation' in info and info['annotation'] is not None:
         annotext = bs_anno
+    pub_year = None
+    isbn = None
+    publisher = None
+    if pubinfo is not None:
+        isbn = pubinfo.get("isbn")
+        pub_year = pubinfo.get("year")
+        publisher = pubinfo.get("publisher")
+    pub_info = {
+        "isbn": isbn,
+        "year": pub_year,
+        "publisher": publisher,
+        "publisher_id": make_id(publisher)
+    }
     book_path = str(os.path.basename(z.filename)) + "/" + filename
     book_id = make_id(book_path)
     out = {
-        "zipfile": str(os.path.basename(z.filename)),
+        "zipfile": zip_file,
         "filename": filename,
         "genres": genre,
         "authors": author,
@@ -118,7 +137,8 @@ def fb2parse(z, filename, replace_data, inpx_data):
         "lang": str(lang),
         "date_time": date_time,
         "size": str(size),
-        "annotation": str(annotext.replace('\n', " ").replace('|', " "))
+        "annotation": str(annotext.replace('\n', " ").replace('|', " ")),
+        "pub_info": pub_info
     }
     return book_id, out
 

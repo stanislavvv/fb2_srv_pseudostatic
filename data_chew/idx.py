@@ -28,6 +28,7 @@ gen_names = {}
 gen_root = {}
 gen_cnt = 0
 gen_processed = {}
+pub_names = {}  # publisher's names
 
 
 def process_list_books(fd, booklist):
@@ -82,7 +83,11 @@ def process_list_books(fd, booklist):
                 else:
                     s = {"name": gen_name, "id": gen_id, "cnt": 1}
                     gen_idx[gen_id] = s
-
+        if book["pub_info"]["publisher"] is not None:
+            pub_names[book["pub_info"]["publisher_id"]] = {
+                "name": book["pub_info"]["publisher"],
+                "id": book["pub_info"]["publisher_id"]
+            }
 
 def make_global_indexes(zipdir, pagesdir):
     global seq_cnt
@@ -143,6 +148,10 @@ def make_global_indexes(zipdir, pagesdir):
         json.dump(gen_cnt, idx, indent=2, ensure_ascii=False)
     with open(pagesdir + "/allgenresmeta.json", "w") as idx:
         json.dump(gen_root, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allpublishers.json", "w") as idx:
+        json.dump(pub_names, idx, indent=2, ensure_ascii=False)
+    with open(pagesdir + "/allpublishercnt.json", "w") as idx:
+        json.dump(len(pub_names), idx, indent=2, ensure_ascii=False)
 
 
 def make_auth_data(pagesdir):

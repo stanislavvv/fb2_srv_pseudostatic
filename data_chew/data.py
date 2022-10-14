@@ -5,12 +5,12 @@ import json
 import os
 import logging
 
-from .strings import strlist, strip_quotes
+from .strings import strlist, strip_quotes, unicode_upper
 
 
 # will be normalize string for make_id and compare
 def str_normalize(s: str):
-    ret = s
+    ret = unicode_upper(s)
     return ret
 
 
