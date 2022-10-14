@@ -314,3 +314,30 @@ def nonseq_from_data(data):
             book_id = book["book_id"]
             ret.append(book_id)
     return ret
+
+
+def get_pub_info(pubinfo):
+    isbn = None
+    year = None
+    publisher = None
+    if pubinfo is not None:
+        if isinstance(pubinfo, dict):
+            isbn = pubinfo.get("isbn")
+            if not isinstance(isbn, str):
+                isbn = None
+            pub_year = pubinfo.get("year")
+            if not isinstance(pub_year, str):
+                pub_year = None
+            publisher = pubinfo.get("publisher")
+            if isinstance(publisher, dict):
+                publisher = publisher["#text"]
+        elif isinstance(pubinfo, list):
+            for p in pubinfo:
+                tmpisbn, tmpyear, tmppub = get_pub_info(p)
+                if tmpisbn is not None:
+                    isbn = tmpisbn
+                if tmpyear is not None:
+                    year = tmpyear
+                if tmppub is not None:
+                    publisher = tmppub
+    return isbn, year, publisher

@@ -13,6 +13,7 @@ from .strings import get_genres, get_genres_meta, get_genres_replace
 
 from .data import get_genre, get_author_struct, get_sequence, get_lang, get_title
 from .data import get_struct_by_key, make_id, get_replace_list, replace_book
+from .data import get_pub_info
 
 from .inpx import get_inpx_meta
 
@@ -113,19 +114,8 @@ def fb2parse(z, filename, replace_data, inpx_data):
     annotext = ''
     if 'annotation' in info and info['annotation'] is not None:
         annotext = bs_anno
-    pub_year = None
-    isbn = None
-    publisher = None
-    if pubinfo is not None:
-        isbn = pubinfo.get("isbn")
-        if not isinstance(isbn, str):
-            isbn = None
-        pub_year = pubinfo.get("year")
-        if not isinstance(pub_year, str):
-            pub_year = None
-        publisher = pubinfo.get("publisher")
-        if isinstance(publisher, dict):
-            publisher = publisher["#text"]
+
+    isbn, pub_year, publisher = get_pub_info(pubinfo)
     pub_info = {
         "isbn": isbn,
         "year": pub_year,
