@@ -116,7 +116,11 @@ def fb2parse(z, filename, replace_data, inpx_data):
     publisher = None
     if pubinfo is not None:
         isbn = pubinfo.get("isbn")
+        if not isinstance(isbn, str):
+            isbn = None
         pub_year = pubinfo.get("year")
+        if not isinstance(pub_year, str):
+            pub_year = None
         publisher = pubinfo.get("publisher")
         if isinstance(publisher, dict):
             publisher = publisher["#text"]
