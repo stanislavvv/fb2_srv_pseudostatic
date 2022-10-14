@@ -192,7 +192,6 @@ def opds_author_nonseq(sub1, sub2, id):
     self = "/opds/" + idx
     upref = "/opds/author/" + id2path(id)
     tag = "tag:root:author:" + id
-    idx2 = "author/%s/%s/%s" % (sub1, sub2, id)
     title = "Книги вне серий автора "
     authref = "/opds/author/"
     seqref = "/opds/sequence/"

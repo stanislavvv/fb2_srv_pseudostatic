@@ -89,6 +89,7 @@ def process_list_books(fd, booklist):
                 "id": book["pub_info"]["publisher_id"]
             }
 
+
 def make_global_indexes(zipdir, pagesdir):
     global seq_cnt
     global auth_cnt

@@ -1,7 +1,7 @@
 # To Do
 
 - single place for '/opds/authors/', '/opds/sequence/', '/opds/genres/' links place (code refinement)
-- description html refinement (via BeautifulSoap)
+- search several words. If search in book titles - add search by publish year (or, not and)
 
 # FIX
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import current_app
+from bs4 import BeautifulSoup
 import logging
 import datetime
 import urllib
@@ -151,7 +152,19 @@ def paginate_array(data, page: int):
     return ret, next
 
 
-
-# mostly close tags
+# ToDo: mostly close tags
 def html_refine(txt):
-    return txt
+    ht = BeautifulSoup(bytes(txt, 'utf-8'), 'html')
+    ret = ht.prettify()
+    return ret
+
+
+def pubinfo_anno(pubinfo):
+    ret = ""
+    if pubinfo["isbn"] is not None:
+        ret = ret + "<p><b>Данные публикации:</b></p><p>ISBN: %s</p>" % pubinfo["isbn"]
+    if pubinfo["year"] is not None:
+        ret = ret + "<p>Год: %s</p>" % pubinfo["year"]
+    if pubinfo["publisher"] is not None:
+        ret = ret + "<p>Издательство: %s</p>" % pubinfo["publisher"]
+    return ret

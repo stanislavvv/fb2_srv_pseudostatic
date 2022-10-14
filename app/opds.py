@@ -3,7 +3,7 @@
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
 from .internals import get_book_link, url_str, is_substr, get_seq_name, genre_names
-from .internals import paginate_array, unicode_upper, html_refine
+from .internals import paginate_array, unicode_upper, html_refine, pubinfo_anno
 
 import json
 # import ijson
@@ -452,6 +452,7 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
             <p class=\"book\"> %s </p>\n<br/>формат: fb2<br/>
             размер: %s<br/>
             """ % (annotation, sizeof_fmt(size))
+        annotext = annotext + pubinfo_anno(d["pub_info"])
         ret["feed"]["entry"].append(
             get_book_entry(date_time, book_id, book_title, authors, links, category, lang, annotext)
         )
@@ -794,6 +795,7 @@ def random_data(
                 <p class=\"book\"> %s </p>\n<br/>формат: fb2<br/>
                 размер: %s<br/>
                 """ % (annotation, sizeof_fmt(size))
+                annotext = annotext + pubinfo_anno(d["pub_info"])
                 ret["feed"]["entry"].append(
                     get_book_entry(date_time, book_id, book_title, authors, links, category, lang, annotext)
                 )
@@ -1043,6 +1045,7 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
                 <p class=\"book\"> %s </p>\n<br/>формат: fb2<br/>
                 размер: %s<br/>
                 """ % (annotation, sizeof_fmt(size))
+                annotext = annotext + pubinfo_anno(d["pub_info"])
                 ret["feed"]["entry"].append(
                     get_book_entry(date_time, book_id, book_title, authors, links, category, lang, annotext)
                 )
