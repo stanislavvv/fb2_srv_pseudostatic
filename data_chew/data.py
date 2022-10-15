@@ -316,21 +316,31 @@ def nonseq_from_data(data):
     return ret
 
 
+def array2string(arr):
+    ret = []
+    for a in arr:
+        if a is not None:
+            ret.append(str(a))
+    return " ".join(ret)
+
+
 def get_pub_info(pubinfo):
     isbn = None
     year = None
     publisher = None
     if pubinfo is not None:
         if isinstance(pubinfo, dict):
-            isbn = pubinfo.get("isbn")
+            isbn = array2string(pubinfo.get("isbn"))
             if not isinstance(isbn, str):
                 isbn = None
-            pub_year = pubinfo.get("year")
+            pub_year = array2string(pubinfo.get("year"))
             if not isinstance(pub_year, str):
                 pub_year = None
             publisher = pubinfo.get("publisher")
             if isinstance(publisher, dict):
                 publisher = publisher["#text"]
+            if isinstance(publisher, list):
+                publisher = array2string(publisher)
         elif isinstance(pubinfo, list):
             for p in pubinfo:
                 tmpisbn, tmpyear, tmppub = get_pub_info(p)
