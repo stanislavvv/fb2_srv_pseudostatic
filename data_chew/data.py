@@ -318,6 +318,8 @@ def nonseq_from_data(data):
 
 def array2string(arr):
     ret = []
+    if a is None:
+        return None  # ashes to ashes dust to dust
     for a in arr:
         if a is not None:
             ret.append(str(a))
