@@ -7,3 +7,4 @@
 
 - use genres replacement when generating indexes
 - case-insensitive sort in book/author/sequence/genre lists -- need testing
+- year always null in publish info
