@@ -323,7 +323,7 @@ def array2string(arr):
     for a in arr:
         if a is not None:
             ret.append(str(a))
-    return " ".join(ret)
+    return "".join(ret)
 
 
 def get_pub_info(pubinfo):
@@ -335,9 +335,11 @@ def get_pub_info(pubinfo):
             isbn = array2string(pubinfo.get("isbn"))
             if not isinstance(isbn, str):
                 isbn = None
-            pub_year = array2string(pubinfo.get("year"))
-            if not isinstance(pub_year, str):
-                pub_year = None
+            year = array2string(pubinfo.get("year"))
+            if isinstance(year, int):
+                year = str(year)
+            if not isinstance(year, str):
+                year = None
             publisher = pubinfo.get("publisher")
             if isinstance(publisher, dict):
                 publisher = publisher["#text"]
