@@ -7,4 +7,4 @@
 
 - use genres replacement when generating indexes
 - case-insensitive sort in book/author/sequence/genre lists -- need testing
-- year always null in publish info
+- count in stage4 show 230/229
