@@ -3,7 +3,7 @@
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
 from .internals import get_book_link, url_str, is_substr, get_seq_name, genre_names
-from .internals import paginate_array, unicode_upper, html_refine, pubinfo_anno
+from .internals import paginate_array, unicode_upper, html_refine, pubinfo_anno, search_words
 
 import json
 # import ijson
@@ -923,35 +923,37 @@ def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
     if s_term is None:
         ret["feed"]["id"] = tag
     else:
+        s_terms = s_term.split()
         ret["feed"]["id"] = tag + urllib.parse.quote_plus(s_term)
         data = []
         try:
             rootdir = current_app.config['STATIC']
             maxres = current_app.config['MAX_SEARCH_RES']
             workdir = rootdir + "/"
-            i = 0
             if restype == "book":
                 nums = []
                 with open(workdir + idx_titles) as f:
                     book_titles = json.load(f)
                     num = 0
+                    i = 0
                     for book_id in book_titles:
-                        if is_substr(s_term, book_titles[book_id]):
+                        if search_words(s_terms, book_titles[book_id]):
                             nums.append(num)
-                        num = num + 1
+                            i = i + 1
+                        num = num + 1  # next book No in index
+                        if i >= maxres:
+                            break
                 data = read_data(workdir + idx, nums)
             else:
                 with open(workdir + idx, "rb") as f:
+                    i = 0
                     for line in f:
                         d = json.loads(line)
-                        if restype == "auth" or restype == "seq":
-                            if is_substr(s_term, d["name"]):
-                                data.append(d)
-                                i = i + 1
-                        elif restype == "book":
-                            if is_substr(s_term, d["book_title"]):
-                                data.append(d)
-                                i = i + 1
+                        # dummy if in current searches set:
+                        # if restype == "auth" or restype == "seq":
+                        if search_words(s_terms, d["name"]):
+                            data.append(d)
+                            i = i + 1
                         if i >= maxres:
                             break
             if restype == "auth" or restype == "seq":

@@ -12,6 +12,7 @@ import unicodedata as ud
 genre_names = {}
 
 
+# ToDo: replace cyrillic letters to latin for similar letters
 # custom UPPER + normalize for sqlite and other
 def unicode_upper(s: str):
     ret = ud.normalize('NFKD', s)
@@ -168,3 +169,15 @@ def pubinfo_anno(pubinfo):
     if pubinfo["publisher"] is not None:
         ret = ret + "<p>Издательство: %s</p>" % pubinfo["publisher"]
     return ret
+
+
+# return True, if ALL words in swords are in txt
+def search_words(swords, txt):
+    if swords is None or txt is None:
+        return False
+    cnt = len(swords)
+    found = 0
+    for word in swords:
+        if unicode_upper(word) in unicode_upper(txt):
+            found = found + 1
+    return found == cnt
