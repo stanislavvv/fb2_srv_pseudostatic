@@ -11,6 +11,32 @@ import unicodedata as ud
 
 genre_names = {}
 
+alphabet_1 = [  # first letters in main authors/sequences page
+    'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й',
+    'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф',
+    'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я'
+]
+
+alphabet_2 = [  # second letters in main authors/sequences page
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+    'U', 'V', 'W', 'X', 'Y', 'Z'
+]
+
+
+def custom_alphabet_sort(slist):
+    ret = []
+    for s in sorted(slist):
+        if len(s) > 0 and s[0] in alphabet_1:
+            ret.append(s)
+    for s in sorted(slist):
+        if len(s) > 0 and s[0] in alphabet_2:
+            ret.append(s)
+    for s in sorted(slist):
+        if len(s) > 0 and s[0] not in alphabet_1 and s[0] not in alphabet_2:
+            ret.append(s)
+    return ret
+
 
 # ToDo: replace cyrillic letters to latin for similar letters
 # custom UPPER + normalize for sqlite and other
@@ -105,15 +131,6 @@ def url_str(s):
                 c = tr[c]
             ret = ret + c
     return urllib.parse.quote(ret, encoding='utf-8')
-
-
-# true if sub in s
-def is_substr(sub, s):
-    sub_up = unicode_upper(sub)
-    s_up = unicode_upper(s)
-    if sub_up in s_up:
-        return True
-    return False
 
 
 def get_seq_name(seq_id):

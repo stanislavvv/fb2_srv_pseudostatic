@@ -2,8 +2,9 @@
 
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
-from .internals import get_book_link, url_str, is_substr, get_seq_name, genre_names
+from .internals import get_book_link, url_str, get_seq_name, genre_names
 from .internals import paginate_array, unicode_upper, html_refine, pubinfo_anno, search_words
+from .internals import custom_alphabet_sort
 
 import json
 # import ijson
@@ -184,7 +185,7 @@ def str_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data):
+    for d in custom_alphabet_sort(data):
         ret["feed"]["entry"].append(
             {
                 "updated": dtiso,
