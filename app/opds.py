@@ -4,10 +4,9 @@ from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
 from .internals import get_book_link, url_str, get_seq_name, genre_names
 from .internals import paginate_array, unicode_upper, html_refine, pubinfo_anno, search_words
-from .internals import custom_alphabet_sort
+from .internals import custom_alphabet_sort, URL
 
 import json
-# import ijson
 import logging
 import urllib
 import os
@@ -27,12 +26,12 @@ def ret_hdr():  # python does not have constants
             "icon": "/favicon.ico",
             "link": [
                 {
-                    "@href": current_app.config['APPLICATION_ROOT'] + "/opds/search?searchTerm={searchTerms}",
+                    "@href": current_app.config['APPLICATION_ROOT'] + URL["search"] + "?searchTerm={searchTerms}",
                     "@rel": "search",
                     "@type": "application/atom+xml"
                 },
                 {
-                    "@href": current_app.config['APPLICATION_ROOT'] + "/opds/",
+                    "@href": current_app.config['APPLICATION_ROOT'] + URL["start"],
                     "@rel": "start",
                     "@type": "application/atom+xml;profile=opds-catalog"
                 }
@@ -60,17 +59,17 @@ def main_opds():
         "icon": "/favicon.ico",
         "link": [
           {
-            "@href": "%s/opds/search?searchTerm={searchTerms}",
+            "@href": "%s%s?searchTerm={searchTerms}",
             "@rel": "search",
             "@type": "application/atom+xml"
           },
           {
-            "@href": "%s/opds/",
+            "@href": "%s%s",
             "@rel": "start",
             "@type": "application/atom+xml;profile=opds-catalog"
           },
           {
-            "@href": "%s/opds/",
+            "@href": "%s%s",
             "@rel": "self",
             "@type": "application/atom+xml;profile=opds-catalog"
           }
@@ -85,7 +84,7 @@ def main_opds():
               "#text": "По авторам"
             },
             "link": {
-              "@href": "%s/opds/authorsindex/",
+              "@href": "%s%s",
               "@type": "application/atom+xml;profile=opds-catalog"
             }
           },
@@ -98,7 +97,7 @@ def main_opds():
               "#text": "По сериям"
             },
             "link": {
-              "@href": "%s/opds/sequencesindex/",
+              "@href": "%s%s",
               "@type": "application/atom+xml;profile=opds-catalog"
             }
           },
@@ -111,7 +110,7 @@ def main_opds():
               "#text": "По жанрам"
             },
             "link": {
-              "@href": "%s/opds/genresindex/",
+              "@href": "%s%s",
               "@type": "application/atom+xml;profile=opds-catalog"
             }
           },
@@ -124,7 +123,7 @@ def main_opds():
               "#text": "Случайные книги"
             },
             "link": {
-              "@href": "%s/opds/random-books/",
+              "@href": "%s%s",
               "@type": "application/atom+xml;profile=opds-catalog"
             }
           },
@@ -137,7 +136,7 @@ def main_opds():
               "#text": "Случайные серии"
             },
             "link": {
-              "@href": "%s/opds/random-sequences/",
+              "@href": "%s%s",
               "@type": "application/atom+xml;profile=opds-catalog"
             }
           }
@@ -145,12 +144,14 @@ def main_opds():
       }
     }
     """ % (
-        dtiso, approot, approot, approot,
-        dtiso, approot,
-        dtiso, approot,
-        dtiso, approot,
-        dtiso, approot,
-        dtiso, approot
+        dtiso, approot, URL["search"],
+        approot, URL["start"],  # start
+        approot, URL["start"],  # self
+        dtiso, approot, URL["authidx"],
+        dtiso, approot, URL["seqidx"],
+        dtiso, approot, URL["genidx"],
+        dtiso, approot, URL["rndbook"],
+        dtiso, approot, URL["rndseq"]
     )
     return json.loads(data)
 
@@ -498,13 +499,13 @@ def main_author(idx, tag, title, self, upref, authref, seqref, auth_id):
                     "title": "Об авторе",
                     "link": [
                         {
-                            "@href": approot + "/opds/author/" + id2path(auth_id) + "/sequences",
+                            "@href": approot + URL["author"] + id2path(auth_id) + "/sequences",
                             "@rel": "http://www.feedbooks.com/opds/facet",
                             "@title": "Books of author by sequences",
                             "@type": "application/atom+xml;profile=opds-catalog"
                         },
                         {
-                            "@href": approot + "/opds/author/" + id2path(auth_id) + "/sequenceless",
+                            "@href": approot + URL["author"] + id2path(auth_id) + "/sequenceless",
                             "@rel": "http://www.feedbooks.com/opds/facet",
                             "@title": "Sequenceless books of author",
                             "@type": "application/atom+xml;profile=opds-catalog"
@@ -520,7 +521,7 @@ def main_author(idx, tag, title, self, upref, authref, seqref, auth_id):
                     "id": "tag:author:" + auth_id + ":sequences",
                     "title": "По сериям",
                     "link": {
-                        "@href": approot + "/opds/author/" + id2path(auth_id) + "/sequences",
+                        "@href": approot + URL["author"] + id2path(auth_id) + "/sequences",
                         "@type": "application/atom+xml;profile=opds-catalog"
                     }
                 },
@@ -529,7 +530,7 @@ def main_author(idx, tag, title, self, upref, authref, seqref, auth_id):
                     "id": "tag:author:" + auth_id + ":sequenceless",
                     "title": "Вне серий",
                     "link": {
-                        "@href": approot + "/opds/author/" + id2path(auth_id) + "/sequenceless",
+                        "@href": approot + URL["author"] + id2path(auth_id) + "/sequenceless",
                         "@type": "application/atom+xml;profile=opds-catalog"
                     }
                 },
@@ -538,7 +539,7 @@ def main_author(idx, tag, title, self, upref, authref, seqref, auth_id):
                     "id": "tag:author:" + auth_id + ":alphabet",
                     "title": "По алфавиту",
                     "link": {
-                        "@href": approot + "/opds/author/" + id2path(auth_id) + "/alphabet",
+                        "@href": approot + URL["author"] + id2path(auth_id) + "/alphabet",
                         "@type": "application/atom+xml;profile=opds-catalog"
                     }
                 },
@@ -547,7 +548,7 @@ def main_author(idx, tag, title, self, upref, authref, seqref, auth_id):
                     "id": "tag:author:" + auth_id + ":time",
                     "title": "По дате добавления",
                     "link": {
-                        "@href": approot + "/opds/author/" + id2path(auth_id) + "/time",
+                        "@href": approot + URL["author"] + id2path(auth_id) + "/time",
                         "@type": "application/atom+xml;profile=opds-catalog"
                     }
                 }
@@ -827,7 +828,7 @@ def random_data(
     return ret
 
 
-def search_main(s_term, tag, title, baseref, self, upref):
+def search_main(s_term, tag, title, self, upref):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     ret = ret_hdr()
@@ -861,7 +862,7 @@ def search_main(s_term, tag, title, baseref, self, upref):
               "#text": "Поиск в именах авторов"
             },
             "link": {
-              "@href": approot + baseref + "search-authors?searchTerm=%s" % url_str(s_term),
+              "@href": approot + URL["srchauth"] + "?searchTerm=%s" % url_str(s_term),
               "@type": "application/atom+xml;profile=opds-catalog"
             }
           }
@@ -876,7 +877,7 @@ def search_main(s_term, tag, title, baseref, self, upref):
               "#text": "Поиск в сериях"
             },
             "link": {
-              "@href": approot + baseref + "search-sequences?searchTerm=%s" % url_str(s_term),
+              "@href": approot + URL["srchseq"] + "?searchTerm=%s" % url_str(s_term),
               "@type": "application/atom+xml;profile=opds-catalog"
             }
           }
@@ -891,7 +892,7 @@ def search_main(s_term, tag, title, baseref, self, upref):
               "#text": "Поиск в названиях книг"
             },
             "link": {
-              "@href": approot + baseref + "search-books?searchTerm=%s" % url_str(s_term),
+              "@href": approot + URL["srchbook"] + "?searchTerm=%s" % url_str(s_term),
               "@type": "application/atom+xml;profile=opds-catalog"
             }
           }

@@ -23,6 +23,24 @@ alphabet_2 = [  # second letters in main authors/sequences page
     'U', 'V', 'W', 'X', 'Y', 'Z'
 ]
 
+URL = {
+    "start": "/opds/",
+    "author": "/opds/author/",
+    "authidx": "/opds/authorsindex/",
+    "seq": "/opds/sequence/",
+    "seqidx": "/opds/sequencesindex/",
+    "genre": "/opds/genre/",
+    "genidx": "/opds/genresindex/",
+    "search": "/opds/search",  # main search page, no last '/' in search
+    "srchauth": "/opds/search-authors",
+    "srchseq": "/opds/search-sequences",
+    "srchbook": "/opds/search-books",
+    "rndbook": "/opds/random-books/",
+    "rndseq": "/opds/random-sequences/",
+    "read": "/read/",  # read book
+    "dl": "/fb2/"  # download book
+}
+
 
 def custom_alphabet_sort(slist):
     ret = []
@@ -101,12 +119,12 @@ def get_book_link(approot, zipfile, filename, ctype):
     title = "Читать онлайн"
     book_ctype = "text/html"
     rel = "alternate"
-    href = approot + "/read/" + zipfile + "/" + url_str(filename)
+    href = approot + URL["read"] + zipfile + "/" + url_str(filename)
     if ctype == 'dl':
         title = "Скачать"
         book_ctype = "application/fb2+zip"
         rel = "http://opds-spec.org/acquisition/open-access"
-        href = approot + "/fb2/" + zipfile + "/" + url_str(filename)
+        href = approot + URL["dl"] + zipfile + "/" + url_str(filename)
     ret = {
         "@href": href,
         "@rel": rel,
