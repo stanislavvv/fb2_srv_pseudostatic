@@ -1,7 +1,8 @@
 # To Do
 
-- single place for '/opds/authors/', '/opds/sequence/', '/opds/genres/' links place (code refinement) -- in testing
+- templates: replace text header/bottom links (up,self,...) to pictures/unicode symbols
+- templates: header and bottom must be in single files
 
 # FIX
 
-- count in stage4 show 230/229 -- hold
+- count in stage4 show 230/229 -- won't fix
