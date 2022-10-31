@@ -1,6 +1,6 @@
 # To Do
 
-- templates: replace text header/bottom links (up,self,...) to pictures/unicode symbols
+- templates: replace text header/bottom links (up,self,...) to pictures/unicode symbols -- testing (may be replace by image?)
 
 # FIX
 
