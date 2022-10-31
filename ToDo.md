@@ -1,7 +1,6 @@
 # To Do
 
 - templates: replace text header/bottom links (up,self,...) to pictures/unicode symbols
-- templates: header and bottom must be in single files
 
 # FIX
 
