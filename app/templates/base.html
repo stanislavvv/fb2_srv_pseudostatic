@@ -7,6 +7,23 @@
                 Books
             {% endif -%}
         </title>
+        <style>
+            html { font-size: 62.5%; }
+            .navi { font-size: 3em;  }
+            body { font-size: 1em;}
+            @media (max-width: 400px) {
+                html { font-size: 300%; }
+            }
+            @media (min-width: 500px) {
+                html { font-size: 180%; }
+            }
+            @media (min-width: 700px) {
+                html { font-size: 140%; }
+            }
+            @media (min-width: 1200px) {
+                html { font-size: 100%; }
+            }
+        </style>
     </head>
     <body>
         <h1>
@@ -21,14 +38,19 @@
             <form action={{l['@href']|replace('/opds', '/html', 1)|replace('?searchTerm={searchTerms}', '', 1)}} method="get">
                 <input type="text" name="searchTerm"><input type="submit" value="Искать"></form>
           {% else %}
-            <a href={{l['@href']|replace('/opds', '/html', 1)}}>{{l['@rel']|replace('/opds', '/html', 1)}}</a>
+            <a class=navi href={{l['@href']|replace('/opds', '/html', 1)}}>{{l['@rel'] | head2sym | safe}}</a>
           {% endif %}
         {% endfor %}
         <hr>
         {% block entry %}{% endblock %}
         <p>
         {% for l in link %}
-            <a href={{l['@href']|replace('/opds', '/html', 1)}}>{{l['@rel']|replace('/opds', '/html', 1)}}</a>
+          {% if l['@rel'] == "search" %}
+            <form action={{l['@href']|replace('/opds', '/html', 1)|replace('?searchTerm={searchTerms}', '', 1)}} method="get">
+                <input type="text" name="searchTerm"><input type="submit" value="Искать"></form>
+          {% else %}
+            <a class=navi href={{l['@href']|replace('/opds', '/html', 1)}}>{{l['@rel'] | head2sym | safe}}</a>
+          {% endif %}
         {% endfor %}
         </p>
         {% if updated is defined -%}

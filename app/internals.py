@@ -42,6 +42,19 @@ URL = {
 }
 
 
+def tpl_headers_symbols(s: str):
+    h2s = {
+        "start": "&#8962;", # "⌂"
+        "self": "&#x21bb;",  # "↻", was "🗘"
+        "up": "&#8657;",  # "⇒"
+        "next": "&#8658;",  # "⇑"
+        "prev": "&#8656;"  # "⇐"
+    }
+    if s in h2s:
+        return h2s[s]
+    return s
+
+
 def custom_alphabet_sort(slist):
     ret = []
     for s in sorted(slist):
