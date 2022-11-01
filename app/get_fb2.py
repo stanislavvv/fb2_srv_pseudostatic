@@ -17,7 +17,7 @@ def init_xslt(xsltfile):
     transform = ET.XSLT(xslt)
 
 
-def fb2_out(zip_file, filename):
+def fb2_out(zip_file: str, filename: str):
     zipdir = current_app.config['ZIPS']
     zippath = zipdir + "/" + zip_file
     try:
@@ -31,7 +31,7 @@ def fb2_out(zip_file, filename):
         return None
 
 
-def html_out(zip_file, filename):
+def html_out(zip_file: str, filename: str):
     zipdir = current_app.config['ZIPS']
     zippath = zipdir + "/" + zip_file
     try:

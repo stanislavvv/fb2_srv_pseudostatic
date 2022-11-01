@@ -9,7 +9,7 @@ zip_check = re.compile('([0-9a-zA-Z_.-]+.zip)')
 fb2_check = re.compile('([ 0-9a-zA-Z_.-]+.fb2)')
 
 
-def unurl(s):
+def unurl(s: str):
     tr = {
         '%22': '"',
         '%27': "'",

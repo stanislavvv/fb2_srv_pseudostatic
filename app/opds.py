@@ -156,7 +156,7 @@ def main_opds():
     return json.loads(data)
 
 
-def str_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
+def str_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: str, subtag: str, subtitle: str):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -205,7 +205,7 @@ def str_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     return ret
 
 
-def seq_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
+def seq_cnt_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: str, subtag: str, subtitle: str):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -261,7 +261,7 @@ def seq_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     return ret
 
 
-def auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
+def auth_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: str, subtag: str, subtitle: str):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -316,7 +316,10 @@ def auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     return ret
 
 
-def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=False, page=0, paginate=False):
+def books_list(
+    idx: str, tag: str, title: str, self: str, upref: str, authref: str,
+    seqref: str, seq_id: str, timeorder=False, page=0, paginate=False
+):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -462,7 +465,7 @@ def books_list(idx, tag, title, self, upref, authref, seqref, seq_id, timeorder=
     return ret
 
 
-def main_author(idx, tag, title, self, upref, authref, seqref, auth_id):
+def main_author(idx: str, tag: str, title: str, self: str, upref: str, authref: str, seqref: str, auth_id: str):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -556,7 +559,10 @@ def main_author(idx, tag, title, self, upref, authref, seqref, auth_id):
     return ret
 
 
-def author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, auth_id):
+def author_seqs(
+    idx: str, tag: str, title: str, baseref: str, self: str, upref: str,
+    authref: str, seqref: str, subtag: str, auth_id: str
+):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -611,7 +617,7 @@ def author_seqs(idx, tag, title, baseref, self, upref, authref, seqref, subtag, 
     return ret
 
 
-def get_main_name(idx):
+def get_main_name(idx: str):
     ret = ""
     rootdir = current_app.config['STATIC']
     workfile = rootdir + "/" + idx + ".json"
@@ -625,7 +631,7 @@ def get_main_name(idx):
 
 
 # for [{name: ..., id: ...}, ...]
-def name_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
+def name_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: str, subtag: str, subtitle: str):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -680,7 +686,7 @@ def name_list(idx, tag, title, baseref, self, upref, subtag, subtitle):
     return ret
 
 
-def get_randoms(num, maxrand: int):
+def get_randoms(num: int, maxrand: int):
     ret = []
     random.seed()
     for i in range(1, num):
@@ -689,7 +695,7 @@ def get_randoms(num, maxrand: int):
 
 
 # read items with num in nums
-def read_data(idx, nums):
+def read_data(idx: str, nums):
     ret = []
     num = 0
     try:
@@ -705,17 +711,17 @@ def read_data(idx, nums):
 
 
 def random_data(
-            datafile,
-            cntfile,
-            tag,
-            title,
-            baseref,
-            self,
-            upref,
-            authref,
-            seqref,
-            subtag,
-            books
+            datafile: str,
+            cntfile: str,
+            tag: str,
+            title: str,
+            baseref: str,
+            self: str,
+            upref: str,
+            authref: str,
+            seqref: str,
+            subtag: str,
+            books: bool
         ):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
@@ -828,7 +834,7 @@ def random_data(
     return ret
 
 
-def search_main(s_term, tag, title, self, upref):
+def search_main(s_term: str, tag: str, title: str, self: str, upref: str):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     ret = ret_hdr()
@@ -901,7 +907,10 @@ def search_main(s_term, tag, title, self, upref):
 
 
 # restype = (auth|seq|book)
-def search_term(s_term, idx, tag, title, baseref, self, upref, subtag, restype):
+def search_term(
+    s_term: str, idx: str, tag: str, title: str, baseref: str,
+    self: str, upref: str, subtag: str, restype: str
+):
     idx_titles = "allbooktitles.json"
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']

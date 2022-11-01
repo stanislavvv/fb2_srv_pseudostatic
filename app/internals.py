@@ -90,7 +90,16 @@ def id2path(id: str):
     return first + "/" + second + "/" + id
 
 
-def get_book_entry(date_time, book_id, book_title, authors, links, category, lang, annotext):
+def get_book_entry(
+    date_time: str,
+    book_id: str,
+    book_title: str,
+    authors,
+    links,
+    category,
+    lang: str,
+    annotext: str
+):
     ret = {
         "updated": date_time,
         "id": "tag:book:" + book_id,
@@ -109,7 +118,7 @@ def get_book_entry(date_time, book_id, book_title, authors, links, category, lan
 
 
 # 123456 -> 123k, 1234567 -> 1.23M
-def sizeof_fmt(num, suffix="B"):
+def sizeof_fmt(num: int, suffix="B"):
     for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
         if abs(num) < 1024.0:
             return f"{num:3.1f}{unit}{suffix}"
@@ -117,7 +126,7 @@ def sizeof_fmt(num, suffix="B"):
     return f"{num:.1f}Yi{suffix}"
 
 
-def get_seq_link(approot, seqref, seq_id, seq_name):
+def get_seq_link(approot: str, seqref: str, seq_id: str, seq_name: str):
     ret = {
         "@href": approot + seqref + seq_id,
         "@rel": "related",
@@ -128,7 +137,7 @@ def get_seq_link(approot, seqref, seq_id, seq_name):
 
 
 # ctype == 'dl' for download
-def get_book_link(approot, zipfile, filename, ctype):
+def get_book_link(approot: str, zipfile: str, filename: str, ctype: str):
     title = "Читать онлайн"
     book_ctype = "text/html"
     rel = "alternate"
@@ -148,7 +157,7 @@ def get_book_link(approot, zipfile, filename, ctype):
 
 
 # urlencode string (quote + replace some characters to %NN)
-def url_str(s):
+def url_str(s: str):
     tr = {
         '"': '%22',
         "'": '%27',
@@ -164,7 +173,7 @@ def url_str(s):
     return urllib.parse.quote(ret, encoding='utf-8')
 
 
-def get_seq_name(seq_id):
+def get_seq_name(seq_id: str):
     ret = ""
     rootdir = current_app.config['STATIC']
     seqidx = rootdir + "/allsequences.json"
@@ -177,7 +186,7 @@ def get_seq_name(seq_id):
     return ret
 
 
-def load_genres(pagesdir):
+def load_genres(pagesdir: str):
     global genre_names
     genidx = pagesdir + "/allgenres.json"
     if os.path.exists(genidx):
@@ -202,7 +211,7 @@ def paginate_array(data, page: int):
 
 
 # ToDo: mostly close tags
-def html_refine(txt):
+def html_refine(txt: str):
     ht = BeautifulSoup(txt, 'html.parser')
     ret = ht.prettify()
     return ret
@@ -220,7 +229,7 @@ def pubinfo_anno(pubinfo):
 
 
 # return True, if ALL words in swords are in txt
-def search_words(swords, txt):
+def search_words(swords, txt: str):
     if swords is None or txt is None:
         return False
     cnt = len(swords)
