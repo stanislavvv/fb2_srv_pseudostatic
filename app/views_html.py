@@ -5,7 +5,7 @@ from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main
 from .opds import author_seqs, get_main_name, name_list, random_data
 from .opds import search_main, search_term
 from .validate import validate_prefix, validate_id, validate_genre_meta, validate_genre, validate_search
-from .internals import id2path, URL
+from .internals import id2path, URL, meta_names
 
 # import json
 
@@ -297,7 +297,7 @@ def html_gen_meta(sub):
     baseref = URL["genre"]
     upref = URL["genidx"]
     tag = "tag:genres:" + sub
-    title = "Жанры"
+    title = meta_names[sub]
     subtag = "tag:genres:"
     subtitle = "Книги на "
     data = name_list(idx, tag, title, baseref, self, upref, subtag, subtitle)

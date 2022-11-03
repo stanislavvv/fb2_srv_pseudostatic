@@ -10,6 +10,7 @@ import os
 import unicodedata as ud
 
 genre_names = {}
+meta_names = {}
 
 alphabet_1 = [  # first letters in main authors/sequences page
     'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й',
@@ -44,11 +45,11 @@ URL = {
 
 def tpl_headers_symbols(s: str):
     h2s = {
-        "start": "&#8962;", # "⌂"
-        "self": "&#x21bb;",  # "↻", was "🗘"
-        "up": "&#8657;",  # "⇒"
-        "next": "&#8658;",  # "⇑"
-        "prev": "&#8656;"  # "⇐"
+        "start": "HOME",  # was "&#8962;", # "⌂"
+        "self": "RELOAD",  # was "&#x21bb;",  # "↻", was "🗘"
+        "up": "UP",  # was "&#8657;",  # "⇒"
+        "next": "NEXT",  # "&#8658;",  # "⇑"
+        "prev": "PREV"  # "&#8656;"  # "⇐"
     }
     if s in h2s:
         return h2s[s]
@@ -199,6 +200,20 @@ def load_genres(pagesdir: str):
             logging.error(e)
 
 
+def load_meta(pagesdir: str):
+    global meta_names
+    genidx = pagesdir + "/allgenresmeta.json"
+    if os.path.exists(genidx):
+        try:
+            with open(genidx) as f:
+                metas = json.load(f)
+                for meta_id in metas:
+                    meta_name = metas[meta_id]["name"]
+                    meta_names[meta_id] = meta_name
+        except Exception as e:
+            logging.error(e)
+
+
 def paginate_array(data, page: int):
     pagesize = int(current_app.config['PAGE_SIZE'])
     begin = page * pagesize
@@ -210,7 +225,6 @@ def paginate_array(data, page: int):
     return ret, next
 
 
-# ToDo: mostly close tags
 def html_refine(txt: str):
     ht = BeautifulSoup(txt, 'html.parser')
     ret = ht.prettify()

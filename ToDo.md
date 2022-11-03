@@ -1,7 +1,6 @@
 # To Do
 
-- templates: replace text header/bottom links (up,self,...) to pictures/unicode symbols -- rollback
-- h1 in genres list must be meta name
+- h1 in genres list must be meta name -- testing
 
 # FIX
 
