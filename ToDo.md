@@ -7,3 +7,4 @@
 # Known bugs
 
 - count in `./datachew.py stage4` show 230/229 -- won't fix
+- prev link `bla-bla/0` must be `bla-bla`
