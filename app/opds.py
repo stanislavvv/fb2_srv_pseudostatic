@@ -379,10 +379,18 @@ def books_list(
     if paginate:
         data, next = paginate_array(data, page)
         prev = page - 1
-        if prev >= 0:
+        if prev > 0:
             ret["feed"]["link"].append(
                 {
                     "@href": approot + self + "/" + str(prev),
+                    "@rel": "prev",
+                    "@type": "application/atom+xml;profile=opds-catalog"
+                }
+            )
+        if prev == 0:
+            ret["feed"]["link"].append(
+                {
+                    "@href": approot + self,
                     "@rel": "prev",
                     "@type": "application/atom+xml;profile=opds-catalog"
                 }
