@@ -380,6 +380,10 @@ def make_gen_data(pagesdir):
         workfile = pagesdir + gen_data_base + gen + ".json"
         with open(workfile, 'w') as idx:
             json.dump(data, idx, indent=2, ensure_ascii=False)
+        workfile = pagesdir + gen_data_base + gen + ".cnt.json"
+        cnt = len(data["books"])
+        with open(workfile, 'w') as idx:
+            json.dump(cnt, idx, indent=2, ensure_ascii=False)
         gen_processed[gen] = 1
 
 

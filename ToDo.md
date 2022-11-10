@@ -1,8 +1,7 @@
 # To Do
 
-- h1 in genres list must be meta name -- testing
 - add random books in fixed genre
-- add zip/book/list in error/warning logging
+- add zip/book/list in error/warning logging in datachew.py stages
 
 # Known bugs
 
