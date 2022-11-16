@@ -139,6 +139,19 @@ def main_opds():
               "@href": "%s%s",
               "@type": "application/atom+xml;profile=opds-catalog"
             }
+          },
+          {
+            "updated": "%s",
+            "id": "tag:root:random:genres",
+            "title": "Случайные книги в жанре",
+            "content": {
+              "@type": "text",
+              "#text": "Случайные книги в жанре"
+            },
+            "link": {
+              "@href": "%s%s",
+              "@type": "application/atom+xml;profile=opds-catalog"
+            }
           }
         ]
       }
@@ -151,7 +164,8 @@ def main_opds():
         dtiso, approot, URL["seqidx"],
         dtiso, approot, URL["genidx"],
         dtiso, approot, URL["rndbook"],
-        dtiso, approot, URL["rndseq"]
+        dtiso, approot, URL["rndseq"],
+        dtiso, approot, URL["rndgenidx"]
     )
     return json.loads(data)
 
@@ -639,7 +653,11 @@ def get_main_name(idx: str):
 
 
 # for [{name: ..., id: ...}, ...]
-def name_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: str, subtag: str, subtitle: str):
+def name_list(
+        idx: str, tag: str, title: str, baseref: str,
+        self: str, upref: str, subtag: str, subtitle: str,
+        subdata = None
+):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -673,6 +691,8 @@ def name_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: st
     except Exception as e:
         logging.error(e)
         return ret
+    if subdata is not None:
+        data = data[subdata]
     for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
         name = d["name"]
         id = d["id"]
@@ -702,7 +722,7 @@ def get_randoms(num: int, maxrand: int):
     return ret
 
 
-# read items with num in nums
+# read items with num in nums from jsonl
 def read_data(idx: str, nums):
     ret = []
     num = 0
@@ -711,6 +731,24 @@ def read_data(idx: str, nums):
             for b in f:
                 if num in nums:
                     d = json.loads(b)
+                    ret.append(d)
+                num = num + 1
+    except Exception as e:
+        logging.error(e)
+    return ret
+
+
+# return items with num in nums from entire json
+def get_data(idx: str, nums, books = True):
+    ret = []
+    num = 0
+    try:
+        with open(idx, "rb") as f:
+            data = json.load(f)
+            if books:
+                data = data["books"]
+            for d in data:
+                if num in nums:
                     ret.append(d)
                 num = num + 1
     except Exception as e:
@@ -729,7 +767,8 @@ def random_data(
             authref: str,
             seqref: str,
             subtag: str,
-            books: bool
+            books: bool,
+            entirefile: False
         ):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
@@ -761,7 +800,11 @@ def random_data(
             cnt = json.load(jsfile)
         randoms = get_randoms(count - 1, cnt)
         dataf = workdir + datafile
-        data = read_data(dataf, randoms)
+        data = {}
+        if entirefile:
+            data = get_data(dataf, randoms)
+        else:
+            data = read_data(dataf, randoms)
         if books:
             for d in data:
                 book_title = d["book_title"]

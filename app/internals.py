@@ -39,7 +39,7 @@ URL = {
     "rndbook": "/opds/random-books/",
     "rndseq": "/opds/random-sequences/",
     "rndgen": "/opds/rnd-genre/",
-    "rndgenmeta": "/opds/rnd-genresindex/",
+    "rndgenidx": "/opds/rnd-genresindex/",
     "read": "/read/",  # read book
     "dl": "/fb2/"  # download book
 }

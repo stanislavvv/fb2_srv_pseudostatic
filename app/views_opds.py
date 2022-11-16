@@ -5,7 +5,7 @@ from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main
 from .opds import author_seqs, get_main_name, name_list, random_data
 from .opds import search_main, search_term
 from .validate import validate_prefix, validate_id, validate_genre_meta, validate_genre, validate_search
-from .internals import id2path, URL, meta_names
+from .internals import id2path, URL, meta_names, genre_names
 
 import xmltodict
 # import json
@@ -382,5 +382,68 @@ def opds_search_books():
     subtag = "tag:book:"
     title = "Поиск среди книг по '" + s_term + "'"
     data = search_term(s_term, idx, tag, title, baseref, self, upref, subtag, "book")
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route(URL["rndgenidx"].replace("/opds", "/opds", 1), methods=['GET'])
+def opds_rnd_gen_root():
+    idx = "genresindex"
+    self = URL["rndgenidx"]
+    baseref = self
+    upref = URL["start"]
+    tag = "tag:rnd:genres"
+    title = "Группы жанров"
+    subtag = "tag:rnd:genres:"
+    subtitle = "Книги на "
+    data = name_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route(URL["rndgenidx"].replace("/opds", "/opds", 1) + "<sub>", methods=['GET'])
+def opds_rnd_gen_meta(sub):
+    sub = validate_genre_meta(sub)
+    data = []
+    idx = "genresindex/" + sub
+    self = URL["rndgenidx"] + sub
+    baseref = URL["rndgen"]
+    upref = URL["start"]
+    tag = "tag:rnd:genres:" + sub
+    title = meta_names[sub]
+    subtag = "tag:genres:"
+    subtitle = "Книги на "
+    data = name_list(idx, tag, title, baseref, self, upref, subtag, subtitle, "genres")
+    xml = xmltodict.unparse(data, pretty=True)
+    return Response(xml, mimetype='text/xml')
+
+
+@opds.route(URL["rndgen"].replace("/opds", "/opds", 1) + "<id>", methods=['GET'])
+def opds_rnd_genre(id, page=0):
+    id = validate_genre(id)
+    baseref = ""  # not for books
+    idx = "genre/%s" % (id)
+    self = URL["rndgen"] + id
+    upref = URL["rndgenidx"]
+    tag = "tag:rnd:genre:" + id
+    title = "Случайные книги, жанр '" + genre_names[id] + "'"
+    authref = URL["author"]
+    seqref = URL["seq"]
+    datafile = "genre/" + id + ".json"
+    cntfile = "genre/" + id + ".cnt.json"
+    subtag = ""  # not for books
+    data = random_data(
+                datafile,
+                cntfile,
+                tag,
+                title,
+                baseref,
+                self,
+                upref,
+                authref,
+                seqref,
+                subtag,
+                True,
+                True)
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')
