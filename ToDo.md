@@ -1,7 +1,7 @@
 # To Do
 
-- add random books in fixed genre
-- add zip/book/list in error/warning logging in datachew.py stages
+- add random books in fixed genre -- testing
+- add zip/book/list in error/warning logging in datachew.py stages (must be used in exception)
 
 # Known bugs
 
