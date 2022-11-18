@@ -126,7 +126,7 @@ def check_genres(zipfile, filename, genrs):
             logging.warning("unknown genre in " + zipfile + "/" + filename + " : " + i)
 
 
-def genres_replace(genrs):
+def genres_replace(zipfile, filename, genrs):
     global genres_replacements
     ret = []
     for i in genrs:
@@ -135,7 +135,7 @@ def genres_replace(genrs):
                 if genres_replacements[i] is not None and genres_replacements[i] != "":
                     ret.append(genres_replacements[i])
             else:
-                logging.warning("unknown genre '" + i + "' replaced to 'other'")
+                logging.warning("unknown genre '" + i + "' replaced to 'other' for " + zipfile + "/" + filename)
                 ret.append('other')
         else:
             ret.append(i)

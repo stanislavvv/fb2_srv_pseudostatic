@@ -38,7 +38,7 @@ def process_list_books(fd, booklist):
         data = json.load(lst)
     for book in data:
         book_titles[book["book_id"]] = book.get("book_title")
-        book["genres"] = genres_replace(book["genres"])
+        book["genres"] = genres_replace(book["zipfile"], book["filename"], book["genres"])
         # fd.send(book)
         fd.write(json.dumps(book, ensure_ascii=False))
         fd.write("\n")

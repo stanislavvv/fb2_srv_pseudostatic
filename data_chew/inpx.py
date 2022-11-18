@@ -65,8 +65,9 @@ def get_line_fields(line):
         )
         r["genre"] = array_strip_empty(li[1].split(":"))
         r["book-title"] = li[2]
+        context = "get inpx data for '" + str(li[5]) + ".fb2'"
         if len(li[3]) > 2:
-            if li[4] is not None and li[4] != '' and num2int(li[4]) >= 0:
+            if li[4] is not None and li[4] != '' and num2int(li[4], context) >= 0:
                 r["sequence"] = {"@name": li[3], "@number": li[4]}
             else:
                 r["sequence"] = {"@name": li[3]}
@@ -92,5 +93,5 @@ def get_inpx_meta(inpx_data, zip_file):
             line = f.readline().decode('utf-8').strip("\r").strip("\n")
         f.close()
     except Exception as e:
-        logging.exception(e)
+        logging.exception("Error in getting metadata: " + str(e) + " for file: " + os.path.basename(zip_file))
     return ret

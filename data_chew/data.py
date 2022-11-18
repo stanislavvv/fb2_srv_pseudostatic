@@ -141,18 +141,19 @@ def get_author_struct(author):
     return ret
 
 
-def num2int(num: str):
+def num2int(num: str, context: str):
     try:
         ret = int(num)
         return ret
     except Exception as e:
-        logging.error(e)  # not exception, but error in data
+        logging.error("Error: " + str(e) + " context: " + context)  # not exception, but error in data
         return -1
 
 
 # return struct: [{"name": "SomeName", "id": "id...", num: 3}, ...]
-def get_sequence(seq):
+def get_sequence(seq, zip_file, filename):
     ret = []
+    context = "get seq for file '" + filename + "'"
     if isinstance(seq, str):
         id = make_id(seq)
         ret.append({"name": seq, "id": id})
@@ -168,7 +169,7 @@ def get_sequence(seq):
         if '@number' in seq:
             num = seq['@number']
         if name is not None and num is not None:
-            ret.append({"name": name, "id": id, "num": num2int(num)})
+            ret.append({"name": name, "id": id, "num": num2int(num, context)})
         elif name is not None:
             ret.append({"name": name, "id": id})
         elif num is not None:
@@ -177,7 +178,7 @@ def get_sequence(seq):
                 id = make_id(name)
                 ret.append({"name": name, "id": id})
             else:
-                ret.append({"num": num2int(num)})
+                ret.append({"num": num2int(num, context)})
     elif isinstance(seq, list):
         for s in seq:
             name = None
@@ -189,7 +190,7 @@ def get_sequence(seq):
             if '@number' in s:
                 num = s['@number']
             if name is not None and num is not None:
-                ret.append({"name": name, "id": id, "num": num2int(num)})
+                ret.append({"name": name, "id": id, "num": num2int(num, context)})
             elif name is not None:
                 ret.append({"name": name, "id": id})
             elif num is not None:
@@ -198,7 +199,7 @@ def get_sequence(seq):
                     id = make_id(name)
                     ret.append({"name": name, "id": id})
                 else:
-                    ret.append({"num": num2int(num)})
+                    ret.append({"num": num2int(num, context)})
     else:
         ret.append(str(seq))
     return ret
@@ -245,7 +246,7 @@ def get_replace_list(zip_file):
             ret = r
         except Exception as e:
             # used error() because error in file data, not in program
-            logging.error("Can't load json from '" + replace_list + "': " + e)
+            logging.error("Can't load json from '" + replace_list + "': " + str(e))
     return ret
 
 

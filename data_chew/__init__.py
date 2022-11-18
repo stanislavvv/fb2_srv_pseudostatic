@@ -73,7 +73,7 @@ def fb2parse(z, filename, replace_data, inpx_data):
             namespaces={'http://www.gribuser.ru/xml/fictionbook/2.0': None}
         )
     if 'FictionBook' not in data:  # not fb2
-        logging.error("not fb2: %s " % filename)
+        logging.error("not fb2: %s/%s " % (zip_file, filename))
         return None, None
     fb2data = get_struct_by_key('FictionBook', data)  # data['FictionBook']
     descr = get_struct_by_key('description', fb2data)  # fb2data['description']
@@ -82,7 +82,7 @@ def fb2parse(z, filename, replace_data, inpx_data):
     try:
         pubinfo = get_struct_by_key('publish-info', descr)  # descr['publish-info']
     except:  # get_struct_by_key must return None without stacktrace
-        logging.warning("No publish info in %s/%s" % (zip_file, filename))
+        logging.debug("No publish info in %s/%s" % (zip_file, filename))
     if isinstance(pubinfo, list):
         pubinfo = pubinfo[0]
     if isinstance(info, list):
@@ -104,7 +104,7 @@ def fb2parse(z, filename, replace_data, inpx_data):
         author = get_author_struct(info['author'])
     sequence = None
     if 'sequence' in info and info['sequence'] is not None:
-        sequence = get_sequence(info['sequence'])
+        sequence = get_sequence(info['sequence'], zip_file, filename)
     book_title = ''
     if 'book-title' in info and info['book-title'] is not None:
         book_title = get_title(info['book-title'])
