@@ -514,7 +514,6 @@ def html_rnd_gen_meta(sub):
 def html_rnd_genre(id, page=0):
     id = validate_genre(id)
     baseref = ""  # not for books
-    idx = "genre/%s" % (id)
     self = URL["rndgen"] + id
     upref = URL["rndgenidx"]
     tag = "tag:rnd:genre:" + id

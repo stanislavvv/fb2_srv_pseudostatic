@@ -656,7 +656,7 @@ def get_main_name(idx: str):
 def name_list(
         idx: str, tag: str, title: str, baseref: str,
         self: str, upref: str, subtag: str, subtitle: str,
-        subdata = None
+        subdata=None
 ):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
@@ -739,7 +739,7 @@ def read_data(idx: str, nums):
 
 
 # return items with num in nums from entire json
-def get_data(idx: str, nums, books = True):
+def get_data(idx: str, nums, books=True):
     ret = []
     num = 0
     try:

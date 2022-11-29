@@ -1,6 +1,6 @@
 # To Do
 
-- add random books in fixed genre -- testing
+- none
 
 # Known bugs
 

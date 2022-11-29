@@ -81,8 +81,9 @@ def fb2parse(z, filename, replace_data, inpx_data):
     pubinfo = None
     try:
         pubinfo = get_struct_by_key('publish-info', descr)  # descr['publish-info']
-    except:  # get_struct_by_key must return None without stacktrace
-        logging.debug("No publish info in %s/%s" % (zip_file, filename))
+    except Exception as e:  # get_struct_by_key must return None without stacktrace
+        if len(str(e)) > 0:  # flake8...
+            logging.debug("No publish info in %s/%s" % (zip_file, filename))
     if isinstance(pubinfo, list):
         pubinfo = pubinfo[0]
     if isinstance(info, list):
