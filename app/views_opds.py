@@ -292,7 +292,8 @@ def opds_random_books():
                 authref,
                 seqref,
                 subtag,
-                True)
+                True,
+                False)
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')
 
@@ -320,6 +321,7 @@ def opds_random_seqs():
                 authref,
                 seqref,
                 subtag,
+                False,
                 False)
     xml = xmltodict.unparse(data, pretty=True)
     return Response(xml, mimetype='text/xml')

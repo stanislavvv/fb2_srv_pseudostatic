@@ -352,7 +352,8 @@ def html_random_books():
                 authref,
                 seqref,
                 subtag,
-                True)
+                True,
+                False)
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']
@@ -384,6 +385,7 @@ def html_random_seqs():
                 authref,
                 seqref,
                 subtag,
+                False,
                 False)
     title = data['feed']['title']
     updated = data['feed']['updated']
