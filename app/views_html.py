@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, Response, render_template, request
+from flask import Blueprint, Response, render_template, request, redirect, url_for
 from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main_author
 from .opds import author_seqs, get_main_name, name_list, random_data
 from .opds import search_main, search_term
@@ -12,6 +12,13 @@ from .internals import id2path, URL, meta_names, genre_names
 html = Blueprint("html", __name__)
 
 redir_all = "html.html_root"
+
+
+@html.route("/", methods=['GET'])
+def hello_world():
+    location = url_for(redir_all)
+    code = 301
+    return redirect(location, code, Response=None)
 
 
 @html.route(URL["start"].replace("/opds", "/html", 1), methods=['GET'])
