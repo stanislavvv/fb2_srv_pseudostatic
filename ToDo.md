@@ -1,6 +1,6 @@
 # To Do
 
-- none
+- use replaced field in .inp
 
 # Known bugs
 
