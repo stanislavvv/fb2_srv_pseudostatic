@@ -4,7 +4,7 @@ from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
 from .internals import get_book_link, url_str, get_seq_name, genre_names
 from .internals import paginate_array, unicode_upper, html_refine, pubinfo_anno, search_words
-from .internals import custom_alphabet_sort, URL
+from .internals import custom_alphabet_sort, URL, get_genre_name
 
 import json
 import logging
@@ -451,7 +451,7 @@ def books_list(
         for gen in genres:
             category.append(
                 {
-                    "@label": genre_names[gen],
+                    "@label": get_genre_name(gen),
                     "@term": gen
                 }
             )
@@ -838,7 +838,7 @@ def random_data(
                 for gen in genres:
                     category.append(
                         {
-                            "@label": genre_names[gen],
+                            "@label": get_genre_name(gen),
                             "@term": gen
                         }
                     )
@@ -1095,7 +1095,7 @@ def search_term(
                 for gen in genres:
                     category.append(
                         {
-                            "@label": genre_names[gen],
+                            "@label": get_genre_name(gen),
                             "@term": gen
                         }
                     )
