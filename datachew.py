@@ -43,7 +43,7 @@ def renew_lists():
     for zip_file in glob.glob(zipdir + '/*.zip'):
         i += 1
         logging.info("[" + str(i) + "] ")
-        create_booklist(inpx_data, zip_file)
+        create_booklist(inpx_data, zip_file, DEBUG)
 
 
 def new_lists():
@@ -53,7 +53,7 @@ def new_lists():
     for zip_file in glob.glob(zipdir + '/*.zip'):
         i += 1
         logging.info("[" + str(i) + "] ")
-        update_booklist(inpx_data, zip_file)
+        update_booklist(inpx_data, zip_file, DEBUG)
 
 
 def fromlists(stage):

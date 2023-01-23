@@ -26,15 +26,15 @@ READ_SIZE = 20480  # description in 20kb...
 INPX = "flibusta_fb2_local.inpx"  # filename of metadata indexes zip
 
 
-def create_booklist(inpx_data, zip_file):
+def create_booklist(inpx_data, zip_file, debug):
     booklist = zip_file + ".list"
-    list = ziplist(inpx_data, zip_file)
+    list = ziplist(inpx_data, zip_file, debug)
     bl = open(booklist, 'w')
     bl.write(json.dumps(list, ensure_ascii=False))
     bl.close()
 
 
-def update_booklist(inpx_data, zip_file):
+def update_booklist(inpx_data, zip_file, debug):
     booklist = zip_file + ".list"
     replacelist = zip_file + ".replace"
     if os.path.exists(booklist):
@@ -45,13 +45,14 @@ def update_booklist(inpx_data, zip_file):
             replacetime = os.path.getmtime(replacelist)
         if ziptime < listtime and replacetime < listtime:
             return False
-    create_booklist(inpx_data, zip_file)
+    create_booklist(inpx_data, zip_file, debug)
     return True
 
 
 # get filename in opened zip (assume filename format as fb2), return book struct
-def fb2parse(z, filename, replace_data, inpx_data):
+def fb2parse(z, filename, replace_data, inpx_data, debug):
     file_info = z.getinfo(filename)
+    zip_path = str(z.filename)
     zip_file = str(os.path.basename(z.filename))
     fb2dt = datetime(*file_info.date_time)
     date_time = fb2dt.strftime("%F_%H:%M")
@@ -77,6 +78,9 @@ def fb2parse(z, filename, replace_data, inpx_data):
         return None, None
     fb2data = get_struct_by_key('FictionBook', data)  # data['FictionBook']
     descr = get_struct_by_key('description', fb2data)  # fb2data['description']
+    # if debug:
+    #    with open(zip_path + ".descr", "a") as d:
+    #        d.write(json.dumps(descr, ensure_ascii=False) + "\n")
     info = get_struct_by_key('title-info', descr)  # descr['title-info']
     pubinfo = None
     try:
@@ -93,6 +97,12 @@ def fb2parse(z, filename, replace_data, inpx_data):
         info = replace_book(filename, info, inpx_data)
     if replace_data is not None and filename in replace_data:
         info = replace_book(filename, info, replace_data)
+
+    if "deleted" in info:
+        if info["deleted"] != 0:
+            logging.debug(zip_file + "/" + filename + " in deleted status")
+    else:
+        info["deleted"] = 0
 
     if "date_time" in info and info["date_time"] is not None:
         date_time = str(info["date_time"])
@@ -143,7 +153,7 @@ def fb2parse(z, filename, replace_data, inpx_data):
 
 
 # iterate over files in zip, return array of book struct
-def ziplist(inpx_data, zip_file):
+def ziplist(inpx_data, zip_file, debug):
     logging.info(zip_file)
     ret = []
     z = zipfile.ZipFile(zip_file)
@@ -152,7 +162,7 @@ def ziplist(inpx_data, zip_file):
     for filename in z.namelist():
         if not os.path.isdir(filename):
             logging.debug(zip_file + "/" + filename + "             ")
-            book_id, res = fb2parse(z, filename, replace_data, inpx_data)
+            book_id, res = fb2parse(z, filename, replace_data, inpx_data, debug)
             if res is not None:
                 ret.append(res)
     return ret
