@@ -52,7 +52,6 @@ def update_booklist(inpx_data, zip_file, debug):
 # get filename in opened zip (assume filename format as fb2), return book struct
 def fb2parse(z, filename, replace_data, inpx_data, debug):
     file_info = z.getinfo(filename)
-    zip_path = str(z.filename)
     zip_file = str(os.path.basename(z.filename))
     fb2dt = datetime(*file_info.date_time)
     date_time = fb2dt.strftime("%F_%H:%M")
@@ -147,7 +146,8 @@ def fb2parse(z, filename, replace_data, inpx_data, debug):
         "date_time": date_time,
         "size": str(size),
         "annotation": str(annotext.replace('\n', " ").replace('|', " ")),
-        "pub_info": pub_info
+        "pub_info": pub_info,
+        "deleted": info["deleted"]
     }
     return book_id, out
 
@@ -163,8 +163,7 @@ def ziplist(inpx_data, zip_file, debug):
         if not os.path.isdir(filename):
             logging.debug(zip_file + "/" + filename + "             ")
             book_id, res = fb2parse(z, filename, replace_data, inpx_data, debug)
-            if res is not None:
-                ret.append(res)
+            ret.append(res)
     return ret
 
 

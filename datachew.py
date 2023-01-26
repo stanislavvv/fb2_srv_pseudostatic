@@ -13,6 +13,7 @@ from app import create_app
 from data_chew import INPX
 from data_chew import create_booklist, update_booklist
 from data_chew import process_lists
+from data_chew.idx import set_config
 
 DEBUG = True  # default, configure in app/config.py
 DBLOGLEVEL = logging.DEBUG
@@ -68,6 +69,8 @@ if __name__ == "__main__":
     DEBUG = app.config['DEBUG']
     DBLOGLEVEL = app.config['DBLOGLEVEL']
     DBLOGFORMAT = app.config['DBLOGFORMAT']
+    if "HIDE_DELETED" in app.config:
+        set_config("hide_deleted", app.config["HIDE_DELETED"])
     logging.basicConfig(level=DBLOGLEVEL, format=DBLOGFORMAT)
     if len(sys.argv) > 1:
         if sys.argv[1] == "clean":
