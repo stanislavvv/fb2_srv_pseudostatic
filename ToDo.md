@@ -1,6 +1,12 @@
 # To Do
 
+- systemd unit
 - custom sort in "books by alphabet" page
+
+# Feature requests
+
+- authorization + bookshelf
+- download book in .epub
 
 # Known bugs
 
