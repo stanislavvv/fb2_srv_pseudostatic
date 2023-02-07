@@ -1,6 +1,6 @@
 # To Do
 
-- use replaced field in .inp
+- custom sort in "books by alphabet" page
 
 # Known bugs
 
