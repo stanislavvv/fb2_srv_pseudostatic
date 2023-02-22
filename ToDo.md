@@ -1,7 +1,6 @@
 # To Do
 
 - systemd unit
-- custom sort in "books by alphabet" page
 
 # Feature requests
 

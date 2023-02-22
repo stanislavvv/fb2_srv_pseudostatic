@@ -2,7 +2,7 @@
 
 from flask import current_app
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
-from .internals import get_book_link, url_str, get_seq_name, genre_names
+from .internals import get_book_link, url_str, get_seq_name
 from .internals import paginate_array, unicode_upper, html_refine, pubinfo_anno, search_words
 from .internals import custom_alphabet_sort, URL, get_genre_name
 
@@ -200,7 +200,8 @@ def str_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: str
     except Exception as e:
         logging.error(e)
         return ret
-    for d in custom_alphabet_sort(data):
+    data_sorted = custom_alphabet_sort(data)
+    for d in data_sorted:
         ret["feed"]["entry"].append(
             {
                 "updated": dtiso,
@@ -309,7 +310,7 @@ def auth_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: st
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
+    for d in custom_alphabet_rearrange(sorted(data, key=lambda s: unicode_upper(s["name"]) or -1), "name"):
         name = d["name"]
         id = d["id"]
         ret["feed"]["entry"].append(

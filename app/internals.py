@@ -2,6 +2,8 @@
 
 from flask import current_app
 from bs4 import BeautifulSoup
+from functools import cmp_to_key
+
 import logging
 import datetime
 import urllib
@@ -60,15 +62,7 @@ def tpl_headers_symbols(s: str):
 
 def custom_alphabet_sort(slist):
     ret = []
-    for s in sorted(slist):
-        if len(s) > 0 and s[0] in alphabet_1:
-            ret.append(s)
-    for s in sorted(slist):
-        if len(s) > 0 and s[0] in alphabet_2:
-            ret.append(s)
-    for s in sorted(slist):
-        if len(s) > 0 and s[0] not in alphabet_1 and s[0] not in alphabet_2:
-            ret.append(s)
+    ret = sorted(slist, key=cmp_to_key(custom_alphabet_cmp))
     return ret
 
 
@@ -81,6 +75,41 @@ def unicode_upper(s: str):
     ret = ret.replace('Й', 'И')
     ret = ret.replace('Ъ', 'Ь')
     return ret
+
+
+def custom_char_cmp(c1: str, c2: str):
+    if c1 == c2:
+        return 0
+
+    if c1 in alphabet_1 and c2 not in alphabet_1:
+        return -1
+    if c1 in alphabet_2 and c2 not in alphabet_2 and c2 not in alphabet_1:
+        return -1
+    if c2 in alphabet_1 and c1 not in alphabet_1:
+        return 1
+    if c2 in alphabet_2 and c1 not in alphabet_2 and c1 not in alphabet_1:
+        return 1
+
+    if c1 < c2:
+        return -1
+    else:
+        return +1
+
+
+def custom_alphabet_cmp(s1: str, s2: str):
+    s1len = len(s1)
+    s2len = len(s2)
+    i = 0
+    while custom_char_cmp(s1[i], s2[i]) == 0:
+        i = i + 1
+        if i == s1len:
+            if i == s2len:
+                return 0
+            else:
+                return -1
+        elif i == s2len:
+            return 1
+    return custom_char_cmp(s1[i], s2[i])
 
 
 def get_dtiso():
