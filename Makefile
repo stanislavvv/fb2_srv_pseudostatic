@@ -20,7 +20,7 @@ flakeall:
 
 newpages:
 	@echo "--- rename old pages ---"
-	mv -f data/pages "$(DATA)/pages.rm"
+	mv -f data/pages "$(DATA)/pages.rm" ||:
 	@echo "------ lists ------"
 	./datachew.py new_lists
 	@echo "------ stages -----"
@@ -29,4 +29,4 @@ newpages:
 	./datachew.py stage3
 	./datachew.py stage4
 	@echo "--- remove old pages ---"
-	rm -rf "$(DATA)/pages.rm"
+	rm -rf "$(DATA)/pages.rm" ||:
