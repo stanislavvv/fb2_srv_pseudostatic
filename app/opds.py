@@ -310,7 +310,7 @@ def auth_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: st
     except Exception as e:
         logging.error(e)
         return ret
-    for d in custom_alphabet_rearrange(sorted(data, key=lambda s: unicode_upper(s["name"]) or -1), "name"):
+    for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
         name = d["name"]
         id = d["id"]
         ret["feed"]["entry"].append(
