@@ -1,6 +1,7 @@
 # To Do
 
-- systemd unit
+- remove subheader in OPDS authors list (remove 'content' tag?)
+- remove .zip in book urls (some readers downloads to .../archivename.zip/file.fb2)
 
 # Feature requests
 

@@ -176,7 +176,7 @@ def get_book_link(approot: str, zipfile: str, filename: str, ctype: str):
     href = approot + URL["read"] + zipfile + "/" + url_str(filename)
     if ctype == 'dl':
         title = "Скачать"
-        book_ctype = "application/fb2+zip"
+        book_ctype = "application/fb2"
         rel = "http://opds-spec.org/acquisition/open-access"
         href = approot + URL["dl"] + zipfile + "/" + url_str(filename)
     ret = {
