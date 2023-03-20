@@ -173,6 +173,8 @@ def get_book_link(approot: str, zipfile: str, filename: str, ctype: str):
     title = "Читать онлайн"
     book_ctype = "text/html"
     rel = "alternate"
+    if zipfile.endswith('zip'):
+        zipfile = zipfile[:-4]
     href = approot + URL["read"] + zipfile + "/" + url_str(filename)
     if ctype == 'dl':
         title = "Скачать"

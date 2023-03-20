@@ -25,6 +25,8 @@ def shutdown_server():
 def fb2_download(zip_file=None, filename=None):
     if filename.endswith('.zip'):  # will accept any of .fb2 or .fb2.zip with right filename in .zip
         filename = filename[:-4]
+    if not zip_file.endswith('.zip'):
+        zip_file = zip_file + '.zip'
     zip_file = validate_zip(zip_file)
     filename = validate_fb2(filename)
     if zip_file is None or filename is None:
@@ -47,6 +49,10 @@ def fb2_download(zip_file=None, filename=None):
 
 @dl.route("/read/<zip_file>/<filename>")
 def fb2_read(zip_file=None, filename=None):
+    if filename.endswith('.zip'):  # will accept any of .fb2 or .fb2.zip with right filename in .zip
+        filename = filename[:-4]
+    if not zip_file.endswith('.zip'):
+        zip_file = zip_file + '.zip'
     zip_file = validate_zip(zip_file)
     filename = validate_fb2(filename)
     if zip_file is None or filename is None:
