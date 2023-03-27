@@ -112,6 +112,38 @@ def custom_alphabet_cmp(s1: str, s2: str):
     return custom_char_cmp(s1[i], s2[i])
 
 
+def custom_alphabet_name_cmp(s1, s2):
+    s1len = len(s1["name"])
+    s2len = len(s2["name"])
+    i = 0
+    while custom_char_cmp(s1["name"][i], s2["name"][i]) == 0:
+        i = i + 1
+        if i == s1len:
+            if i == s2len:
+                return 0
+            else:
+                return -1
+        elif i == s2len:
+            return 1
+    return custom_char_cmp(s1["name"][i], s2["name"][i])
+
+
+def custom_alphabet_book_title_cmp(s1, s2):
+    s1len = len(s1["book_title"])
+    s2len = len(s2["book_title"])
+    i = 0
+    while custom_char_cmp(s1["book_title"][i], s2["book_title"][i]) == 0:
+        i = i + 1
+        if i == s1len:
+            if i == s2len:
+                return 0
+            else:
+                return -1
+        elif i == s2len:
+            return 1
+    return custom_char_cmp(s1["book_title"][i], s2["book_title"][i])
+
+
 def get_dtiso():
     return datetime.datetime.now().astimezone().replace(microsecond=0).isoformat()
 

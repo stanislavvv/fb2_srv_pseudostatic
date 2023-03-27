@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from flask import current_app
+from functools import cmp_to_key
+
 from .internals import get_dtiso, id2path, get_book_entry, sizeof_fmt, get_seq_link
 from .internals import get_book_link, url_str, get_seq_name
 from .internals import paginate_array, unicode_upper, html_refine, pubinfo_anno, search_words
-from .internals import custom_alphabet_sort, URL, get_genre_name
+from .internals import custom_alphabet_sort, custom_alphabet_name_cmp, custom_alphabet_book_title_cmp
+from .internals import URL, get_genre_name
 
 import json
 import logging
@@ -254,7 +257,7 @@ def seq_cnt_list(idx: str, tag: str, title: str, baseref: str, self: str, upref:
     except Exception as e:
         logging.error(e)
         return ret
-    for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
+    for d in sorted(data, key=cmp_to_key(custom_alphabet_name_cmp)):
         name = d["name"]
         id = d["id"]
         cnt = d["cnt"]
@@ -384,13 +387,13 @@ def books_list(
     elif timeorder:
         data = sorted(data, key=lambda s: unicode_upper(s["date_time"]))
     elif seq_id is not None and seq_id == '':
-        data = sorted(data, key=lambda s: unicode_upper(s["book_title"]))
+        data = sorted(data, key=cmp_to_key(custom_alphabet_book_title_cmp))
     else:  # seq_id == None
         dfix = []
         for d in data:
             if d["sequences"] is None:
                 dfix.append(d)
-        data = sorted(dfix, key=lambda s: unicode_upper(s["book_title"]))
+        data = sorted(dfix, key=cmp_to_key(custom_alphabet_book_title_cmp))
     if paginate:
         data, next = paginate_array(data, page)
         prev = page - 1
