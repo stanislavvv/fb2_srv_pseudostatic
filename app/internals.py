@@ -100,6 +100,16 @@ def custom_alphabet_cmp(s1: str, s2: str):
     s1len = len(s1)
     s2len = len(s2)
     i = 0
+
+    # случай нулевых строк
+    if s1len == i:
+        if i == s2len:
+            return 0
+        else:
+            return -1
+    elif i == s2len:
+        return 1
+
     while custom_char_cmp(s1[i], s2[i]) == 0:
         i = i + 1
         if i == s1len:

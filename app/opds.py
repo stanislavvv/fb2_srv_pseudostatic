@@ -621,7 +621,7 @@ def author_seqs(
 
     ret["feed"]["title"] = title + auth_name
     data = auth_data["sequences"]
-    for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
+    for d in sorted(data, key=cmp_to_key(custom_alphabet_name_cmp)):
         name = d["name"]
         id = d["id"]
         cnt = d["cnt"]

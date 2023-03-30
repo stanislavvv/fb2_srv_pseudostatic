@@ -1,7 +1,6 @@
 # To Do
 
 - remove subheader in OPDS authors list (remove 'content' tag?)
-- custom sort in books list again (user request) — testing
 
 # Feature requests
 
