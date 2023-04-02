@@ -12,7 +12,7 @@ from .strings import genres_replace, id2path, id2pathonly, genres, get_genre_met
 from .strings import get_meta_name, genres_replacements
 
 MAX_PASS_LENGTH = 1000
-MAX_PASS_LENGTH_GEN = 10
+MAX_PASS_LENGTH_GEN = 5
 
 book_idx = {}
 book_titles = {}
