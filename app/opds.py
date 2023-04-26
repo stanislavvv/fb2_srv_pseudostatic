@@ -223,7 +223,11 @@ def str_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: str
     return ret
 
 
-def seq_cnt_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: str, subtag: str, subtitle: str):
+def seq_cnt_list(
+    idx: str, tag: str, title: str, baseref: str, self: str,
+    upref: str, subtag: str, subtitle: str, tpl="%d книг(и) в серии",
+    layout=None
+):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -261,6 +265,11 @@ def seq_cnt_list(idx: str, tag: str, title: str, baseref: str, self: str, upref:
         name = d["name"]
         id = d["id"]
         cnt = d["cnt"]
+        if layout == "simple":
+            href = approot + baseref + urllib.parse.quote(id)
+        else:
+            href = approot + baseref + urllib.parse.quote(id2path(id))
+        
         ret["feed"]["entry"].append(
             {
                 "updated": dtiso,
@@ -268,10 +277,10 @@ def seq_cnt_list(idx: str, tag: str, title: str, baseref: str, self: str, upref:
                 "title": name,
                 "content": {
                     "@type": "text",
-                    "#text": str(cnt) + " книг(и) в серии"
+                    "#text": tpl % cnt  # str(cnt) + " книг(и) в серии"
                 },
                 "link": {
-                    "@href": approot + baseref + urllib.parse.quote(id2path(id)),
+                    "@href": href,
                     "@type": "application/atom+xml;profile=opds-catalog"
                 }
             }

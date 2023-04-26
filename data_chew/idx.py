@@ -330,15 +330,12 @@ def make_seq_subindexes(pagesdir):
             seq_subroot[first] = s
     logging.debug(" - partial sequence names index tree...")
     for first in sorted(seq_root.keys()):
-        workpath = pagesdir + seq_base + first
-        Path(workpath).mkdir(parents=True, exist_ok=True)
         data = []
-        for d in seq_subroot[first]:
-            data.append(d)
-        with open(workpath + "/index.json", 'w') as idx:
-            json.dump(data, idx, indent=2, ensure_ascii=False)
+        #for d in seq_subroot[first]:
+        #    data.append(d)
         for three in seq_subroot[first]:
             s = seq_subroot[first]
+            cnt = 0
             wpath = pagesdir + seq_base + three
             Path(wpath).mkdir(parents=True, exist_ok=True)
             out = []
@@ -346,8 +343,14 @@ def make_seq_subindexes(pagesdir):
                 seq_name = seq_names[seq_id]
                 seq = seq_data[seq_id]
                 out.append(seq)
+                cnt = cnt + 1
             with open(wpath + "/index.json", 'w') as idx:
                 json.dump(out, idx, indent=2, ensure_ascii=False)
+            data.append({"name": three, "id": three, "cnt": cnt})
+        workpath = pagesdir + seq_base + first
+        Path(workpath).mkdir(parents=True, exist_ok=True)
+        with open(workpath + "/index.json", 'w') as idx:
+            json.dump(data, idx, indent=2, ensure_ascii=False)
     workpath = pagesdir + seq_base
     data = []
     for s in seq_root:
