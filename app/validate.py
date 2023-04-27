@@ -6,7 +6,7 @@ from flask import redirect, url_for
 id_check = re.compile('([0-9a-f]+)')
 genre_check = re.compile('([0-9a-z_]+)')
 zip_check = re.compile('([0-9a-zA-Z_.-]+.zip)')
-fb2_check = re.compile('([ 0-9a-zA-ZА-Яа-я_.-]+.fb2)')
+fb2_check = re.compile('([ 0-9a-zA-ZА-Яа-я_,.:!-]+.fb2)')
 
 
 def unurl(s: str):
