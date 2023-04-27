@@ -69,7 +69,6 @@ def html_seq_sub(sub):
         baseref = URL["seqidx"]
         subtag = "tag:sequence:"
         subtitle = "Серия "
-        #data = str_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
         data = seq_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle, "серий: %d", "simple")
     title = data['feed']['title']
     updated = data['feed']['updated']
@@ -132,18 +131,19 @@ def html_auth_sub(sub):
         tag = "tag:authors:" + sub
         subtag = "tag:authors:"
         subtitle = "Авторы на "
-        data = auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+        data = auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle, "%s")
     else:
         baseref = URL["authidx"]
         tag = "tag:authors:" + sub
         subtag = "tag:author:"
         subtitle = ""
-        data = str_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+        # data = str_list(idx, tag, title, baseref, self, upref, subtag, subtitle)
+        data = auth_list(idx, tag, title, baseref, self, upref, subtag, subtitle, "%d aвт.", "simple")
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']
     link = data['feed']['link']
-    page = render_template('opds_root.html', title=title, updated=updated, link=link, entry=entry)
+    page = render_template('opds_list_linecnt.html', title=title, updated=updated, link=link, entry=entry)
     return Response(page, mimetype='text/html')
 
 
@@ -187,7 +187,7 @@ def html_author_seqs(sub1, sub2, id):
     updated = data['feed']['updated']
     entry = data['feed']['entry']
     link = data['feed']['link']
-    page = render_template('opds_author_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    page = render_template('opds_list_linecnt.html', title=title, updated=updated, link=link, entry=entry)
     return Response(page, mimetype='text/html')
 
 

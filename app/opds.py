@@ -269,7 +269,7 @@ def seq_cnt_list(
             href = approot + baseref + urllib.parse.quote(id)
         else:
             href = approot + baseref + urllib.parse.quote(id2path(id))
-        
+
         ret["feed"]["entry"].append(
             {
                 "updated": dtiso,
@@ -288,7 +288,10 @@ def seq_cnt_list(
     return ret
 
 
-def auth_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: str, subtag: str, subtitle: str):
+def auth_list(
+    idx: str, tag: str, title: str, baseref: str, self: str,
+    upref: str, subtag: str, subtitle: str, tpl="%d", layout=None
+):
     dtiso = get_dtiso()
     approot = current_app.config['APPLICATION_ROOT']
     rootdir = current_app.config['STATIC']
@@ -325,6 +328,14 @@ def auth_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: st
     for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
         name = d["name"]
         id = d["id"]
+        if "cnt" in d:
+            cnt = d["cnt"]
+        else:
+            cnt = ""
+        if layout == "simple":
+            href = approot + baseref + urllib.parse.quote(id)
+        else:
+            href = approot + baseref + urllib.parse.quote(id2path(id))
         ret["feed"]["entry"].append(
             {
                 "updated": dtiso,
@@ -332,10 +343,10 @@ def auth_list(idx: str, tag: str, title: str, baseref: str, self: str, upref: st
                 "title": name,
                 "content": {
                     "@type": "text",
-                    "#text": subtitle + "'" + name + "'"
+                    "#text": tpl % cnt
                 },
                 "link": {
-                    "@href": approot + baseref + urllib.parse.quote(id2path(id)),
+                    "@href": href,
                     "@type": "application/atom+xml;profile=opds-catalog"
                 }
             }

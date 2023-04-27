@@ -23,10 +23,23 @@
             @media (min-width: 1200px) {
                 html { font-size: 100%; }
             }
+            .rowlist_single {
+                display: grid;
+                grid-gap: 1pt;
+                grid-template-columns: 1rfr;
+                margin-left: 1em;
+            }
+            .author_info {
+                margin-left: 1em;
+            }
+            .seq_info {
+                margin-left: 1em;
+            }
             .rowlist {
                 display: grid;
                 grid-gap: 1pt;
-                grid-template-columns: minmax(10%,60%) 1fr;
+                grid-template-columns: minmax(10%,80%) minmax(20%,80%);
+                margin-left: 1em;
             }
             .row {
                 clear: both;

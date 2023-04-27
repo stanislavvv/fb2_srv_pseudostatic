@@ -224,7 +224,11 @@ def make_auth_subindexes(pagesdir):
         three = unicode_upper(name[:3])
         if len(three) < 3:
             three = "%-3s" % three
-        auth_root[first] = 1
+        if first in auth_root:
+            cnt = auth_root[first]
+            auth_root[first] = cnt + 1
+        else:
+            auth_root[first] = 1
         if first in auth_subroot:
             s = auth_subroot[first]
             if three in s:
@@ -244,7 +248,10 @@ def make_auth_subindexes(pagesdir):
         Path(workpath).mkdir(parents=True, exist_ok=True)
         data = []
         for d in auth_subroot[first]:
-            data.append(d)
+            id = d
+            name = d
+            cnt = len(auth_subroot[first][d])
+            data.append({"id": id, "name": name, "cnt": cnt})
         with open(workpath + "/index.json", 'w') as idx:
             json.dump(data, idx, indent=2, ensure_ascii=False)
         for three in auth_subroot[first]:
@@ -331,8 +338,6 @@ def make_seq_subindexes(pagesdir):
     logging.debug(" - partial sequence names index tree...")
     for first in sorted(seq_root.keys()):
         data = []
-        #for d in seq_subroot[first]:
-        #    data.append(d)
         for three in seq_subroot[first]:
             s = seq_subroot[first]
             cnt = 0

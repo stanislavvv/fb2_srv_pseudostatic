@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block entry %}
+        <div class=author_info>
         {% for i in entry %}
         <div>
         {% if i.content is defined -%}
@@ -11,4 +12,5 @@
         {% endif -%}
         </div>
         {% endfor %}
+        </div>
 {% endblock %}

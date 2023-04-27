@@ -2,16 +2,16 @@
 
 {% block entry %}
         {% for i in entry %}
-        <div>
+        <div class=seq_info>
             {% if i.title is defined -%}
             <h2>{{i.title}}</h2>
             {% endif -%}
-            <p>
+            <p>Aвторы: 
             {% for a in i.author %}
                 <a href={{a.uri|replace('/opds', '/html', 1)}}>{{a.name}}</a>
             {% endfor %}
             </p>
-            <p>
+            <p>Ссылки: 
             {% for l in i.link %}
             <a href={{l['@href']|replace('/opds', '/html', 1)}}>{{l['@title']}}</a>
             {% endfor %}
