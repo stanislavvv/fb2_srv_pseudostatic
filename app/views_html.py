@@ -2,7 +2,7 @@
 
 from flask import Blueprint, Response, render_template, request, redirect, url_for
 from .opds import main_opds, str_list, seq_cnt_list, books_list, auth_list, main_author
-from .opds import author_seqs, get_main_name, name_list, random_data
+from .opds import author_seqs, get_main_name, name_list, name_cnt_list, random_data
 from .opds import search_main, search_term
 from .validate import validate_prefix, validate_id, validate_genre_meta, validate_genre, validate_search
 from .internals import id2path, URL, meta_names, genre_names
@@ -308,12 +308,12 @@ def html_gen_meta(sub):
     title = meta_names[sub]
     subtag = "tag:genres:"
     subtitle = "Книги на "
-    data = name_list(idx, tag, title, baseref, self, upref, subtag, subtitle, "genres")
+    data = name_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle, "genres")
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']
     link = data['feed']['link']
-    page = render_template('opds_root.html', title=title, updated=updated, link=link, entry=entry)
+    page = render_template('opds_list_linecnt.html', title=title, updated=updated, link=link, entry=entry)
     return Response(page, mimetype='text/html')
 
 
@@ -456,7 +456,7 @@ def html_search_sequences():
     updated = data['feed']['updated']
     entry = data['feed']['entry']
     link = data['feed']['link']
-    page = render_template('opds_author_sequence.html', title=title, updated=updated, link=link, entry=entry)
+    page = render_template('opds_list_linecnt.html', title=title, updated=updated, link=link, entry=entry)
     return Response(page, mimetype='text/html')
 
 
@@ -511,12 +511,12 @@ def html_rnd_gen_meta(sub):
     title = meta_names[sub]
     subtag = "tag:genres:"
     subtitle = "Книги на "
-    data = name_list(idx, tag, title, baseref, self, upref, subtag, subtitle, "genres")
+    data = name_cnt_list(idx, tag, title, baseref, self, upref, subtag, subtitle, "genres")
     title = data['feed']['title']
     updated = data['feed']['updated']
     entry = data['feed']['entry']
     link = data['feed']['link']
-    page = render_template('opds_root.html', title=title, updated=updated, link=link, entry=entry)
+    page = render_template('opds_list_linecnt.html', title=title, updated=updated, link=link, entry=entry)
     return Response(page, mimetype='text/html')
 
 

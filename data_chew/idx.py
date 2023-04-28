@@ -151,6 +151,7 @@ def make_global_indexes(zipdir, pagesdir):
         for gen in gen_idx:
             fd.write(json.dumps(gen_idx[gen], ensure_ascii=False))
             fd.write("\n")
+            gen_books_cnt = gen_idx[gen]["cnt"]
             gen_cnt = gen_cnt + 1
             name = gen_names[gen]
             meta_id = get_genre_meta(gen)
@@ -159,7 +160,7 @@ def make_global_indexes(zipdir, pagesdir):
                 gen_root[meta_id] = {}
                 gen_root[meta_id]["name"] = meta_name
                 gen_root[meta_id]["genres"] = []
-            gen_root[meta_id]["genres"].append({"name": name, "id": gen})
+            gen_root[meta_id]["genres"].append({"name": name, "id": gen, "cnt": gen_books_cnt})
     with open(pagesdir + "/allgenrecnt.json", 'w') as idx:
         json.dump(gen_cnt, idx, indent=2, ensure_ascii=False)
     with open(pagesdir + "/allgenresmeta.json", "w") as idx:

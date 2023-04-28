@@ -738,6 +738,72 @@ def name_list(
     return ret
 
 
+# for [{name: ..., id: ..., cnt: ...}, ...]
+def name_cnt_list(
+        idx: str, tag: str, title: str, baseref: str,
+        self: str, upref: str, subtag: str, subtitle: str,
+        subdata=None, tpl="%d книг(и)"
+):
+    dtiso = get_dtiso()
+    approot = current_app.config['APPLICATION_ROOT']
+    rootdir = current_app.config['STATIC']
+    workdir = rootdir + "/" + idx
+    ret = ret_hdr()
+    ret["feed"]["updated"] = dtiso
+    ret["feed"]["title"] = title
+    ret["feed"]["id"] = tag
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + self,
+            "@rel": "self",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+    ret["feed"]["link"].append(
+        {
+            "@href": approot + upref,
+            "@rel": "up",
+            "@type": "application/atom+xml;profile=opds-catalog"
+        }
+    )
+
+    try:
+        if os.path.isdir(workdir):
+            with open(workdir + "/index.json") as jsfile:
+                data = json.load(jsfile)
+        else:
+            with open(workdir + ".json") as jsfile:
+                data = json.load(jsfile)
+    except Exception as e:
+        logging.error(e)
+        return ret
+    if subdata is not None:
+        data = data[subdata]
+    for d in sorted(data, key=lambda s: unicode_upper(s["name"]) or -1):
+        name = d["name"]
+        id = d["id"]
+        if "cnt" in d:
+            cnt = d["cnt"]
+        else:
+            cnt = 0
+        ret["feed"]["entry"].append(
+            {
+                "updated": dtiso,
+                "id": subtag + urllib.parse.quote(str(id)),
+                "title": name,
+                "content": {
+                    "@type": "text",
+                    "#text": tpl % cnt
+                },
+                "link": {
+                    "@href": approot + baseref + urllib.parse.quote(str(id)),
+                    "@type": "application/atom+xml;profile=opds-catalog"
+                }
+            }
+        )
+    return ret
+
+
 def get_randoms(num: int, maxrand: int):
     ret = []
     random.seed()
