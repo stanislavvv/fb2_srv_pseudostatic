@@ -45,10 +45,11 @@ def process_list_books(fd, booklist):
     with open(booklist) as lst:
         data = json.load(lst)
     for book in data:
-        if config["hide_deleted"] and book["deleted"] > 0:
-            continue
         if book is None:
             continue
+        if "deleted" in book:
+            if config["hide_deleted"] and book["deleted"] > 0:
+                continue
         book_titles[book["book_id"]] = book.get("book_title")
         book["genres"] = genres_replace(book["zipfile"], book["filename"], book["genres"])
         # fd.send(book)
