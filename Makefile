@@ -2,6 +2,9 @@ FLAKE8_ARGS=--max-line-length=120
 DATA=data
 export FLASK_ENV=prod
 
+# internal name, change to what you want
+DOCKERTAG="fb2srv:latest"
+
 help:
 	@echo "Run \`make <target>'"
 	@echo "Available targets:"
@@ -10,7 +13,6 @@ help:
 	@echo "  help     - this text"
 	@echo "  newpages - recreate data/pages"
 
-# убрать временные файлы
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
@@ -30,3 +32,6 @@ newpages:
 	./datachew.py stage4
 	@echo "--- remove old pages ---"
 	rm -rf "$(DATA)/pages.rm" ||:
+
+dockerbuild:
+	docker build -t "$(DOCKERTAG)" .
