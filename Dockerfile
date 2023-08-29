@@ -13,6 +13,7 @@ RUN set -ex && \
 ADD . /fb2_srv/
 
 RUN set -ex && \
+    rm -rf /fb2_srv/data && \
     mkdir -p /fb2_srv/data && \
     mv -f /fb2_srv/app/config.py.example /fb2_srv/app/config.py
 

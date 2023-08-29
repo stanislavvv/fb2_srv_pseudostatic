@@ -3,7 +3,7 @@ DATA=data
 export FLASK_ENV=prod
 
 # internal name, change to what you want
-DOCKERTAG="fb2srv:latest"
+DOCKERTAG="fb2srv-pseudostatic:latest"
 
 help:
 	@echo "Run \`make <target>'"
