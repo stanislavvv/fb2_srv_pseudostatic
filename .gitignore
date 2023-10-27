@@ -9,3 +9,4 @@ LOG*
 logs
 app/config.py
 venv
+venv.sh
